@@ -1,9 +1,7 @@
 from datetime import date
 from django.db import models
 
-# Create your models here.
 
-# from django.contrib.auth.models import User
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.utils.translation import gettext_lazy as _
 
