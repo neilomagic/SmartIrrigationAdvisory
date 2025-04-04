@@ -4,20 +4,29 @@
     <div class="card">
       <div class="card-header bg-primary text-white">Field Map - {{ field.name }}</div>
       <div class="card-body p-0">
-        <div id="map" style="height: 500px"></div>
+        <!-- Pass latitude and longitude as data attributes -->
+        <div id="map" style="height: 500px" data-lat="{{ field.latitude }}" data-lng="{{ field.longitude }}"></div>
       </div>
     </div>
   </div>
-  <div class="col-md-4">{% include "advisory.html" %}</div>
-
-  <div id="field-id" data-field-id="{{ field.id|default:1 }}" style="display: none"></div>
-  <div id="field-lat" data-field-lat="{{ field.latitude|default:0 }}" style="display: none"></div>
+  <div class="col-md-4">{% include "advisory/advisory.html" %}</div>
 </div>
 {% endblock %} {% block scripts %}
-<!-- Leaflet JS -->
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<!-- Custom Map JS -->
 <script src="{% static 'js/map.js' %}"></script>
-<!-- Advisory JS -->
 <script src="{% static 'js/advisory.js' %}"></script>
+
+<script>
+  // Pass latitude and longitude to map.js
+  const mapElement = document.getElementById("map");
+  const lat = parseFloat(mapElement.dataset.lat);
+  const lon = parseFloat(mapElement.dataset.lng);
+
+  // Initialize the map with the coordinates
+
+  const map = L.map("map").setView([lat, lon], 13);
+  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png").addTo(map);
+
+  const marker = L.marker([lat, lon]).addTo(map).bindPopup(`{{ field.name }}`).openPopup();
+</script>
 {% endblock %}

@@ -19,3 +19,4 @@ tqdm==4.67.1
 django-leaflet==0.28
 earthengine-api==0.1.350
 geemap==0.28
+earthengine-api==1.5.9

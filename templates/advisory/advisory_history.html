@@ -1,0 +1,40 @@
+{% extends "base.html" %} {% block title %}Advisory History{% endblock %} {% block content %}
+<div class="card">
+  <div class="card-header bg-warning">Advisory History - {{ field.name }}</div>
+  <div class="card-body">
+    {% if advisories %}
+    <table class="table table-bordered table-sm">
+      <thead class="table-light">
+        <tr>
+          <th>Date</th>
+          <th>Stage</th>
+          <th>ET₀</th>
+          <th>Rain</th>
+          <th>Kc</th>
+          <th>Need</th>
+          <th>Deficit</th>
+          <th>Advice</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for a in advisories %}
+        <tr>
+          <td>{{ a.date }}</td>
+          <td>{{ a.crop_stage }}</td>
+          <td>{{ a.eto }}</td>
+          <td>{{ a.rainfall }}</td>
+          <td>{{ a.kc }}</td>
+          <td>{{ a.water_need }}</td>
+          <td>{{ a.water_deficit }}</td>
+          <td>{{ a.recommendation }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <p>No advisories yet for this field.</p>
+    {% endif %}
+    <a href="{% url 'advisory:field_list' %}" class="btn btn-outline-secondary mt-3">← Back to Fields</a>
+  </div>
+</div>
+{% endblock %}

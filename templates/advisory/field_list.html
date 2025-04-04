@@ -1,0 +1,22 @@
+{% extends "base.html" %} {% block title %}Field Dashboard{% endblock %} {% block content %}
+<div class="card">
+  <div class="card-header bg-dark text-white">Registered Fields</div>
+  <div class="card-body">
+    {% if fields %}
+    <ul class="list-group">
+      {% for field in fields %}
+      <li class="list-group-item d-flex justify-content-between align-items-center">
+        <div><strong>{{ field.name }}</strong> ({{ field.crop_type|title }})</div>
+        <div>
+          <a class="btn btn-sm btn-outline-primary me-2" href="{% url 'advisory:advisory_history' field.id %}">📋 View History</a>
+          <a class="btn btn-sm btn-outline-secondary" href="{% url 'advisory:field_map' field.id %}">🗺 Field Map</a>
+        </div>
+      </li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    <p>No fields registered yet.</p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

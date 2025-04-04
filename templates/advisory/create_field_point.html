@@ -1,0 +1,52 @@
+{% extends "base.html" %} {% block title %}Smart Create Field{% endblock %} {% block content %}
+<div class="row">
+  <div class="col-md-8">
+    <div class="card">
+      <div class="card-header bg-primary text-white">📍 Select Your Field Location</div>
+      <div class="card-body p-0">
+        <div id="map" style="height: 500px"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-4">
+    <div class="card">
+      <div class="card-header bg-success text-white">📝 Field Details</div>
+      <div class="card-body">
+        <form method="post">
+          {% csrf_token %} {{ form.as_p }}
+          <div class="text-end">
+            <button type="submit" class="btn btn-success mt-2">💾 Save Field</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %} {% block scripts %}
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+  const map = L.map("map").setView([1.2, 32.3], 7);
+  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png").addTo(map);
+  let marker;
+
+  function setLatLon(lat, lng) {
+    document.getElementById("id_latitude").value = lat;
+    document.getElementById("id_longitude").value = lng;
+  }
+
+  map.on("click", function (e) {
+    if (marker) map.removeLayer(marker);
+    marker = L.marker(e.latlng).addTo(map);
+    setLatLon(e.latlng.lat, e.latlng.lng);
+  });
+
+  map.locate({ setView: true, maxZoom: 13 });
+  map.on("locationfound", function (e) {
+    if (!marker) {
+      marker = L.marker(e.latlng).addTo(map);
+      setLatLon(e.latlng.lat, e.latlng.lng);
+    }
+  });
+</script>
+{% endblock %}

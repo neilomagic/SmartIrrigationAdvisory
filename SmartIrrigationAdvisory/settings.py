@@ -85,7 +85,16 @@ DATABASES = {
     }
 }
 
-
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.contrib.gis.db.backends.postgis',
+#         'NAME': 'farm_advisory',
+#         'USER':  'postgres',
+#         'PASSWORD':  'iahps23=M',
+#         'HOST':  'localhost',
+#         'PORT':  '5432',
+#     }
+# }
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
 

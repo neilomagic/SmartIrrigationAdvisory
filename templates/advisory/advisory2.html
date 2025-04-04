@@ -7,11 +7,7 @@
       <strong>Soil Type:</strong> {{ field.soil_type|title }}
     </p>
     <hr />
-    <p><strong>Stage:</strong> {{ stage }}</p>
-    <p><strong>ET₀:</strong> {{ eto }} mm/day</p>
-    <p><strong>Rainfall:</strong> {{ rain }} mm/week</p>
-    <p><strong>Water Need:</strong> {{ weekly_need }} mm</p>
-    <p><strong>Deficit:</strong> {{ deficit }} mm</p>
-    <div class="alert alert-success">{{ message }}</div>
+    <div id="advisory-alert" class="mt-3"></div>
+    <div id="water-need" class="text-center mt-4"></div>
   </div>
 </div>
