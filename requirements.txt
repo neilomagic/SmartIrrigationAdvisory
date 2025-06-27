@@ -17,6 +17,6 @@ dj-database-url==2.2.0
 djangorestframework-simplejwt==5.3.1
 tqdm==4.67.1
 django-leaflet==0.28
-earthengine-api==0.1.350
+earthengine-api
 geemap==0.28
-earthengine-api==1.5.9
+
