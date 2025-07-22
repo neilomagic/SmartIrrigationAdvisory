@@ -1,22 +1,103 @@
 {% extends "base.html" %} {% block title %}Field Dashboard{% endblock %} {% block content %}
-<div class="card">
-  <div class="card-header bg-dark text-white">Registered Fields</div>
-  <div class="card-body">
-    {% if fields %}
-    <ul class="list-group">
-      {% for field in fields %}
-      <li class="list-group-item d-flex justify-content-between align-items-center">
-        <div><strong>{{ field.name }}</strong> ({{ field.crop_type|title }})</div>
-        <div>
-          <a class="btn btn-sm btn-outline-primary me-2" href="{% url 'advisory:advisory_history' field.id %}">📋 View History</a>
-          <a class="btn btn-sm btn-outline-secondary" href="{% url 'advisory:field_map' field.id %}">🗺 Field Map</a>
+<div class="container mt-4">
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="d-flex justify-content-between align-items-center">
+        <h2>🌾 Your Fields</h2>
+        <a href="{% url 'advisory:create_field' %}" class="btn btn-primary"> ➕ Add New Field </a>
+      </div>
+    </div>
+  </div>
+
+  {% if fields %}
+  <div class="row">
+    {% for field in fields %}
+    <div class="col-md-6 col-lg-4 mb-4">
+      <div class="card h-100">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h6 class="mb-0">{{ field.name }}</h6>
+          <span class="badge bg-primary">{{ field.crop_type|title }}</span>
         </div>
-      </li>
-      {% endfor %}
-    </ul>
-    {% else %}
-    <p>No fields registered yet.</p>
-    {% endif %}
+        <div class="card-body">
+          <div class="row mb-2">
+            <div class="col-6">
+              <small class="text-muted">Planted</small>
+              <div>{{ field.planting_date|date:"M d, Y" }}</div>
+            </div>
+            <div class="col-6">
+              <small class="text-muted">Soil</small>
+              <div>{{ field.soil_type|title }}</div>
+            </div>
+          </div>
+          {% if field.field_area_ha %}
+          <div class="mb-2">
+            <small class="text-muted">Area</small>
+            <div>{{ field.field_area_ha }} ha</div>
+          </div>
+          {% endif %} {% if field.elevation %}
+          <div class="mb-2">
+            <small class="text-muted">Elevation</small>
+            <div>{{ field.elevation }}m</div>
+          </div>
+          {% endif %}
+
+          <!-- Quick Stats -->
+          <div class="border-top pt-2 mt-2">
+            <small class="text-muted">Recent Activity</small>
+            <div class="d-flex justify-content-between">
+              <span class="badge bg-secondary"> {{ field.advisories.count }} advisories </span>
+              {% if field.advisories.first %}
+              <small class="text-muted"> Last: {{ field.advisories.first.date|date:"M d" }} </small>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+        <div class="card-footer">
+          <div class="btn-group btn-group-sm w-100">
+            <a href="{% url 'advisory:get_advice' field.id %}" class="btn btn-outline-success"> 💧 Advice </a>
+            <a href="{% url 'advisory:advisory_history' field.id %}" class="btn btn-outline-primary"> 📋 History </a>
+            <a href="{% url 'advisory:field_map' field.id %}" class="btn btn-outline-secondary"> 🗺️ Map </a>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="text-center py-5">
+    <div class="mb-4">
+      <h3 class="text-muted">No fields registered yet</h3>
+      <p class="text-muted">Start by creating your first field to receive irrigation advice.</p>
+    </div>
+    <a href="{% url 'advisory:create_field' %}" class="btn btn-primary btn-lg"> 🌱 Create Your First Field </a>
+  </div>
+  {% endif %}
+
+  <!-- Quick Actions -->
+  <div class="row mt-4">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-header">
+          <h6 class="mb-0">Quick Actions</h6>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-3 mb-2">
+              <a href="{% url 'advisory:create_field' %}" class="btn btn-outline-primary w-100"> ➕ Add New Field </a>
+            </div>
+            <div class="col-md-3 mb-2">
+              <a href="{% url 'advisory:dashboard' %}" class="btn btn-outline-info w-100"> 📊 Dashboard </a>
+            </div>
+            <div class="col-md-3 mb-2">
+              <a href="{% url 'advisory:create_field' %}" class="btn btn-outline-success w-100"> 🗺️ Map View </a>
+            </div>
+            <div class="col-md-3 mb-2">
+              <a href="#" class="btn btn-outline-secondary w-100"> 📈 Reports </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 {% endblock %}

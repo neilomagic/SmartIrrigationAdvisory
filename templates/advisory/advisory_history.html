@@ -1,40 +1,145 @@
 {% extends "base.html" %} {% block title %}Advisory History{% endblock %} {% block content %}
-<div class="card">
-  <div class="card-header bg-warning">Advisory History - {{ field.name }}</div>
-  <div class="card-body">
-    {% if advisories %}
-    <table class="table table-bordered table-sm">
-      <thead class="table-light">
-        <tr>
-          <th>Date</th>
-          <th>Stage</th>
-          <th>ET₀</th>
-          <th>Rain</th>
-          <th>Kc</th>
-          <th>Need</th>
-          <th>Deficit</th>
-          <th>Advice</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for a in advisories %}
-        <tr>
-          <td>{{ a.date }}</td>
-          <td>{{ a.crop_stage }}</td>
-          <td>{{ a.eto }}</td>
-          <td>{{ a.rainfall }}</td>
-          <td>{{ a.kc }}</td>
-          <td>{{ a.water_need }}</td>
-          <td>{{ a.water_deficit }}</td>
-          <td>{{ a.recommendation }}</td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-    {% else %}
-    <p>No advisories yet for this field.</p>
-    {% endif %}
-    <a href="{% url 'advisory:field_list' %}" class="btn btn-outline-secondary mt-3">← Back to Fields</a>
+<div class="container mt-4">
+  <div class="row">
+    <div class="col-md-8">
+      <!-- Advisory History Table -->
+      <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h5 class="mb-0">📋 Advisory History - {{ field.name }}</h5>
+          <span class="badge bg-primary">{{ field.crop_type|title }}</span>
+        </div>
+        <div class="card-body">
+          {% if advisories %}
+          <div class="table-responsive">
+            <table class="table table-hover">
+              <thead class="table-light">
+                <tr>
+                  <th>Date</th>
+                  <th>Stage</th>
+                  <th>ET₀</th>
+                  <th>Rain</th>
+                  <th>Kc</th>
+                  <th>Need</th>
+                  <th>Deficit</th>
+                  <th>Confidence</th>
+                  <th>Recommendation</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for advisory in advisories %}
+                <tr>
+                  <td>{{ advisory.date|date:"M d, Y" }}</td>
+                  <td>
+                    <span class="badge bg-secondary">{{ advisory.crop_stage }}</span>
+                  </td>
+                  <td>{{ advisory.eto|floatformat:1 }} mm/day</td>
+                  <td>{{ advisory.rainfall|floatformat:1 }} mm</td>
+                  <td>{{ advisory.kc|floatformat:2 }}</td>
+                  <td>{{ advisory.water_need|floatformat:1 }} mm</td>
+                  <td>
+                    {% if advisory.irrigation_recommended %}
+                    <span class="text-danger fw-bold">{{ advisory.water_deficit|floatformat:1 }} mm</span>
+                    {% else %}
+                    <span class="text-success">{{ advisory.water_deficit|floatformat:1 }} mm</span>
+                    {% endif %}
+                  </td>
+                  <td>
+                    <span
+                      class="badge {% if advisory.confidence_score > 0.7 %}bg-success{% elif advisory.confidence_score > 0.4 %}bg-warning{% else %}bg-secondary{% endif %}"
+                    >
+                      {{ advisory.confidence_score|floatformat:1 }}
+                    </span>
+                  </td>
+                  <td>
+                    <small>
+                      {% if advisory.irrigation_recommended %} 💧 {{ advisory.recommendation|truncatechars:50 }} {% else %} ✅ {{
+                      advisory.recommendation|truncatechars:50 }} {% endif %}
+                    </small>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          {% else %}
+          <div class="text-center py-4">
+            <p class="text-muted">No advisories yet for this field.</p>
+            <a href="{% url 'advisory:get_advice' field.id %}" class="btn btn-primary"> Generate First Advisory </a>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Summary Sidebar -->
+    <div class="col-md-4">
+      <!-- Field Information -->
+      <div class="card mb-3">
+        <div class="card-header">
+          <h6 class="mb-0">Field Information</h6>
+        </div>
+        <div class="card-body">
+          <p><strong>Name:</strong> {{ field.name }}</p>
+          <p><strong>Crop:</strong> {{ field.crop_type|title }}</p>
+          <p><strong>Planted:</strong> {{ field.planting_date|date:"M d, Y" }}</p>
+          <p><strong>Soil Type:</strong> {{ field.soil_type|title }}</p>
+          {% if field.field_area_ha %}
+          <p><strong>Area:</strong> {{ field.field_area_ha }} ha</p>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Summary Statistics -->
+      {% if summary %}
+      <div class="card mb-3">
+        <div class="card-header">
+          <h6 class="mb-0">Summary Statistics</h6>
+        </div>
+        <div class="card-body">
+          <div class="row text-center">
+            <div class="col-6">
+              <div class="border rounded p-2 mb-2">
+                <small class="text-muted">Total Advisories</small>
+                <div class="fw-bold">{{ summary.total_advisories }}</div>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="border rounded p-2 mb-2">
+                <small class="text-muted">Irrigation Recommended</small>
+                <div class="fw-bold">{{ summary.irrigation_recommended_count }}</div>
+              </div>
+            </div>
+          </div>
+          <div class="row text-center">
+            <div class="col-6">
+              <div class="border rounded p-2 mb-2">
+                <small class="text-muted">Irrigation Rate</small>
+                <div class="fw-bold">{{ summary.irrigation_percentage|floatformat:1 }}%</div>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="border rounded p-2 mb-2">
+                <small class="text-muted">Avg Confidence</small>
+                <div class="fw-bold">{{ summary.avg_confidence|floatformat:2 }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- Quick Actions -->
+      <div class="card">
+        <div class="card-header">
+          <h6 class="mb-0">Quick Actions</h6>
+        </div>
+        <div class="card-body">
+          <a href="{% url 'advisory:get_advice' field.id %}" class="btn btn-success btn-sm w-100 mb-2"> 🔄 Generate New Advisory </a>
+          <a href="{% url 'advisory:field_map' field.id %}" class="btn btn-outline-secondary btn-sm w-100 mb-2"> 🗺️ Field Map </a>
+          <a href="{% url 'advisory:field_list' %}" class="btn btn-outline-primary btn-sm w-100"> ← Back to Fields </a>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 {% endblock %}

@@ -20,3 +20,8 @@ django-leaflet==0.28
 earthengine-api
 geemap==0.28
 
+# Enhanced dependencies for Phase 1
+typing-extensions==4.8.0
+requests==2.31.0
+python-dateutil==2.8.2
+

@@ -1,16 +1,20 @@
 from django.shortcuts import render
-
-
 from django.views.generic import TemplateView, ListView
-
-
 from django.shortcuts import render, redirect
 from .forms import FieldForm
 from django.shortcuts import render, get_object_or_404
+from django.db import models
 from .models import FarmField, IrrigationAdvisory
 from datetime import date
-# from .utils.gee.gee_data import get_weekly_rainfall, get_daily_et0
+import logging
+
+# Import enhanced utilities
+from .utils.crop_coefficients import get_kc, get_crop_info
+from .utils.recommendation_engine import IrrigationRecommendationEngine
+from .utils.gee.gee_data import get_comprehensive_weather_data
 from .utils.simulate import simulate_et0, simulate_weekly_rainfall
+
+logger = logging.getLogger(__name__)
 
 
 def create_field_view(request):
@@ -25,79 +29,96 @@ def create_field_view(request):
 
 
 def get_irrigation_advice(request, field_id):
+    """Enhanced irrigation advice using comprehensive data and recommendation engine"""
     field = get_object_or_404(FarmField, id=field_id)
-    today = date.today()
-    days_since_planting = (today - field.planting_date).days
 
-    # 1. Determine crop stage and Kc
-    if days_since_planting < 20:
-        stage = "Initial"
-        kc = 0.3
-    elif days_since_planting < 60:
-        stage = "Mid-Season"
-        kc = 1.2
-    else:
-        stage = "Late Season"
-        kc = 0.6
+    try:
+        # Initialize recommendation engine
+        engine = IrrigationRecommendationEngine()
 
-    # 2. Simulated ET₀ and Rainfall (later: fetch from GEE or API)
-    # eto = 5.0  # mm/day typical value
-    # rain = 15  # mm/week forecast
+        # Get comprehensive weather data (try GEE first, fallback to simulation)
+        try:
+            weather_data = get_comprehensive_weather_data(
+                field.latitude, field.longitude)
+            logger.info(f"Using GEE data for field {field.id}")
+        except Exception as e:
+            logger.warning(
+                f"GEE data failed for field {field.id}, using simulation: {e}")
+            # Fallback to simulation
+            weather_data = {
+                'weekly_rainfall': simulate_weekly_rainfall(field.latitude, field.longitude),
+                'daily_eto': simulate_et0(field.latitude),
+                'soil_moisture_ndmi': 0.0,  # Default value
+                'forecast': {'temperature': 25.0, 'precipitation': 0.0, 'days': 5},
+                'confidence_score': 0.3,
+                'data_source': 'simulated',
+                'timestamp': date.today().isoformat()
+            }
 
-    # eto = get_daily_et0(field.latitude, field.longitude)
-    # rain = get_weekly_rainfall(field.latitude, field.longitude)
+        # Prepare field data for recommendation engine
+        field_data = {
+            'crop_type': field.crop_type,
+            'planting_date': field.planting_date,
+            'soil_type': field.soil_type,
+            'field_area_ha': field.field_area_ha or 1.0,
+            'elevation': field.elevation or 0.0
+        }
 
-    eto = simulate_et0(field.latitude)
-    rain = simulate_weekly_rainfall(field.latitude, field.longitude)
+        # Generate comprehensive recommendation
+        recommendation = engine.generate_recommendation(
+            field_data, weather_data)
 
-    # fallback to GEE if simulation fails
-    # try:
-    #     eto = get_daily_et0(field.latitude, field.longitude)
-    # except Exception as e:
-    #     print("GEE ET₀ failed, simulating:", e)
-    #     eto = simulate_et0(field.latitude)
+        # Get crop stage information
+        kc, stage = get_kc(field.crop_type, field.planting_date)
+        crop_info = get_crop_info(field.crop_type)
 
-    # try:
-    #     rain = get_weekly_rainfall(field.latitude, field.longitude)
-    # except Exception as e:
-    #     print("GEE rainfall failed, simulating:", e)
-    #     rain = simulate_weekly_rainfall(field.latitude, field.longitude)
+        # Create advisory record
+        advisory = IrrigationAdvisory.objects.create(
+            field=field,
+            crop_stage=stage,
+            eto=weather_data['daily_eto'],
+            rainfall=weather_data['weekly_rainfall'],
+            kc=kc,
+            water_need=recommendation['weather_summary'].get('weekly_need', 0),
+            water_deficit=recommendation['irrigation_volume'],
+            recommendation=recommendation['recommendation_message'],
+            soil_moisture=weather_data.get('soil_moisture_ndmi', 0),
+            irrigation_recommended=recommendation['irrigation_needed'],
+            irrigation_volume=recommendation['irrigation_volume'],
+            confidence_score=recommendation['confidence_score'],
+            data_source=weather_data['data_source']
+        )
 
-    # 3. Weekly water need = ET₀ × Kc × 7 days
-    weekly_need = eto * kc * 7
-    deficit = max(0, weekly_need - rain)
+        # Prepare context for template
+        context = {
+            'field': field,
+            'advisory': advisory,
+            'recommendation': recommendation,
+            'weather_data': weather_data,
+            'crop_info': crop_info,
+            'stage': stage,
+            'kc': kc,
+            'eto': weather_data['daily_eto'],
+            'rain': weather_data['weekly_rainfall'],
+            'soil_moisture': weather_data.get('soil_moisture_ndmi', 0),
+            'confidence': recommendation['confidence_score'],
+            'data_source': weather_data['data_source'],
+            'priority': recommendation['priority'],
+            'timing': recommendation['timing'],
+            'method': recommendation['method']
+        }
 
-    # 4. Message
-    if deficit == 0:
-        message = f"No irrigation needed. Forecast rain ({rain}mm) covers crop need."
-        color = "green"
-    else:
-        message = f"Irrigate this week. Apply approx. {deficit:.1f}mm of water."
-        color = "red"
+        return render(request, 'advisory/advice.html', context)
 
-    IrrigationAdvisory.objects.create(
-        field=field,
-        crop_stage=stage,
-        eto=eto,
-        rainfall=rain,
-        kc=kc,
-        water_need=weekly_need,
-        water_deficit=deficit,
-        recommendation=message
-    )
-
-    return render(request, 'advisory/advice.html', {
-        'field': field,
-        'stage': stage,
-        'kc': kc,
-        'eto': eto,
-        'rain': rain,
-        'weekly_need': weekly_need,
-        'deficit': deficit,
-        'message': message,
-        'color': color,
-    })
-# List all fields
+    except Exception as e:
+        logger.error(
+            f"Error generating irrigation advice for field {field_id}: {e}")
+        # Fallback to basic advice
+        return render(request, 'advisory/advice.html', {
+            'field': field,
+            'error': 'Unable to generate irrigation advice. Please try again later.',
+            'fallback': True
+        })
 
 
 class FieldListView(ListView):
@@ -105,30 +126,94 @@ class FieldListView(ListView):
     template_name = 'advisory/field_list.html'
     context_object_name = 'fields'
 
+    def get_queryset(self):
+        """Get fields with latest advisory information"""
+        return FarmField.objects.prefetch_related('advisories').all()
 
-# View past advisories for a field
+
 def advisory_history_view(request, field_id):
+    """Enhanced advisory history with detailed information"""
     field = get_object_or_404(FarmField, id=field_id)
     advisories = IrrigationAdvisory.objects.filter(
         field=field).order_by('-date')
-    return render(request, 'advisory/advisory_history.html', {
+
+    # Calculate summary statistics
+    total_advisories = advisories.count()
+    irrigation_recommended_count = advisories.filter(
+        irrigation_recommended=True).count()
+    avg_confidence = advisories.aggregate(
+        avg_confidence=models.Avg('confidence_score'))['avg_confidence'] or 0
+
+    context = {
         'field': field,
-        'advisories': advisories
-    })
+        'advisories': advisories,
+        'summary': {
+            'total_advisories': total_advisories,
+            'irrigation_recommended_count': irrigation_recommended_count,
+            'irrigation_percentage': (irrigation_recommended_count / total_advisories * 100) if total_advisories > 0 else 0,
+            'avg_confidence': round(avg_confidence, 2)
+        }
+    }
+    return render(request, 'advisory/advisory_history.html', context)
 
 
 def field_map_view(request, field_id):
+    """Enhanced field map with comprehensive data"""
     field = get_object_or_404(FarmField, id=field_id)
 
-    # (Optional) Calculate or retrieve latest advisory data
+    # Get latest advisory if available
+    latest_advisory = IrrigationAdvisory.objects.filter(
+        field=field).order_by('-date').first()
+
+    # Get weather data for map display
+    try:
+        weather_data = get_comprehensive_weather_data(
+            field.latitude, field.longitude)
+    except Exception as e:
+        logger.warning(f"Could not get weather data for map: {e}")
+        weather_data = {
+            'weekly_rainfall': 0.0,
+            'daily_eto': 0.0,
+            'soil_moisture_ndmi': 0.0,
+            'forecast': {'temperature': 25.0, 'precipitation': 0.0, 'days': 5},
+            'data_source': 'simulated'
+        }
+
     context = {
         "field": field,
-        "stage": "Mid",  # Example values
-        "kc": 1.1,
-        "eto": 4.7,
-        "rain": 18.5,
-        "weekly_need": 36.2,
-        "deficit": 12.3,
-        "message": "Apply irrigation this week.",
+        "latest_advisory": latest_advisory,
+        "weather_data": weather_data,
+        "crop_info": get_crop_info(field.crop_type) if field.crop_type else None
     }
     return render(request, "advisory/map.html", context)
+
+
+def dashboard_view(request):
+    """New dashboard view for overview of all fields"""
+    fields = FarmField.objects.all()
+
+    # Get summary statistics
+    total_fields = fields.count()
+    total_advisories = IrrigationAdvisory.objects.count()
+
+    # Get fields by crop type
+    crop_summary = {}
+    for field in fields:
+        crop = field.crop_type
+        if crop not in crop_summary:
+            crop_summary[crop] = 0
+        crop_summary[crop] += 1
+
+    # Get recent advisories
+    recent_advisories = IrrigationAdvisory.objects.select_related(
+        'field').order_by('-date')[:5]
+
+    context = {
+        'total_fields': total_fields,
+        'total_advisories': total_advisories,
+        'crop_summary': crop_summary,
+        'recent_advisories': recent_advisories,
+        'fields': fields
+    }
+
+    return render(request, 'advisory/dashboard.html', context)
