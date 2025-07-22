@@ -32,6 +32,13 @@
             <li class="nav-item">
               <a class="nav-link text-white" href="{% url 'advisory:field_list' %}"> 🌾 Fields </a>
             </li>
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle text-white" href="#" role="button" data-bs-toggle="dropdown"> 📈 Analytics </a>
+              <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="{% url 'advisory:system_analytics' %}">System Analytics</a></li>
+                <li><a class="dropdown-item" href="{% url 'advisory:performance_comparison' %}">Performance Comparison</a></li>
+              </ul>
+            </li>
             <li class="nav-item">
               <a class="nav-link text-white" href="{% url 'advisory:create_field' %}"> ➕ Add Field </a>
             </li>
@@ -52,8 +59,8 @@
           </div>
           <div class="col-md-6 text-md-end">
             <p class="text-muted small">
-              Powered by Google Earth Engine & Django<br />
-              © 2024 Smart Irrigation Advisory System
+              Powered by NextGen GeoMinds<br />
+              © 2025 Smart Irrigation Advisory
             </p>
           </div>
         </div>

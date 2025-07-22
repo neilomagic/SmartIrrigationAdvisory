@@ -4,6 +4,7 @@ from django.shortcuts import render, redirect
 from .forms import FieldForm
 from django.shortcuts import render, get_object_or_404
 from django.db import models
+from django.http import JsonResponse
 from .models import FarmField, IrrigationAdvisory
 from datetime import date
 import logging
@@ -13,6 +14,7 @@ from .utils.crop_coefficients import get_kc, get_crop_info
 from .utils.recommendation_engine import IrrigationRecommendationEngine
 from .utils.gee.gee_data import get_comprehensive_weather_data
 from .utils.simulate import simulate_et0, simulate_weekly_rainfall
+from .utils.analytics import IrrigationAnalytics
 
 logger = logging.getLogger(__name__)
 
@@ -217,3 +219,98 @@ def dashboard_view(request):
     }
 
     return render(request, 'advisory/dashboard.html', context)
+
+
+# New Analytics Views
+def field_analytics_view(request, field_id):
+    """Detailed analytics view for a specific field"""
+    field = get_object_or_404(FarmField, id=field_id)
+    analytics = IrrigationAnalytics()
+
+    # Get period from request
+    period = request.GET.get('period', '30')
+    try:
+        period_days = int(period)
+    except ValueError:
+        period_days = 30
+
+    # Get performance summary
+    performance = analytics.get_field_performance_summary(
+        field_id, period_days)
+
+    # Get prediction
+    prediction = analytics.predict_irrigation_needs(field_id, days_ahead=7)
+
+    context = {
+        'field': field,
+        'performance': performance,
+        'prediction': prediction,
+        'period_days': period_days,
+        'period_options': [7, 30, 90, 365]
+    }
+
+    return render(request, 'advisory/field_analytics.html', context)
+
+
+def system_analytics_view(request):
+    """System-wide analytics dashboard"""
+    analytics = IrrigationAnalytics()
+    system_data = analytics.get_system_analytics()
+
+    context = {
+        'system_data': system_data,
+        'total_fields': FarmField.objects.count(),
+        'total_advisories': IrrigationAdvisory.objects.count()
+    }
+
+    return render(request, 'advisory/system_analytics.html', context)
+
+
+def analytics_api_view(request, field_id):
+    """API endpoint for analytics data (for AJAX requests)"""
+    try:
+        analytics = IrrigationAnalytics()
+
+        # Get performance data
+        performance = analytics.get_field_performance_summary(field_id)
+
+        # Get prediction
+        prediction = analytics.predict_irrigation_needs(field_id)
+
+        return JsonResponse({
+            'success': True,
+            'performance': performance,
+            'prediction': prediction
+        })
+
+    except Exception as e:
+        logger.error(f"Error in analytics API for field {field_id}: {e}")
+        return JsonResponse({
+            'success': False,
+            'error': str(e)
+        })
+
+
+def performance_comparison_view(request):
+    """Compare performance across multiple fields"""
+    fields = FarmField.objects.all()
+    analytics = IrrigationAnalytics()
+
+    field_performances = []
+    for field in fields:
+        performance = analytics.get_field_performance_summary(field.id, 30)
+        field_performances.append({
+            'field': field,
+            'performance': performance
+        })
+
+    # Sort by water use efficiency
+    field_performances.sort(
+        key=lambda x: x['performance']['water_use_efficiency'], reverse=True)
+
+    context = {
+        'field_performances': field_performances,
+        'total_fields': len(field_performances)
+    }
+
+    return render(request, 'advisory/performance_comparison.html', context)

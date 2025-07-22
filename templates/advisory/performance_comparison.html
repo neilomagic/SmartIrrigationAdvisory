@@ -1,0 +1,212 @@
+{% extends "base.html" %} {% block title %}Performance Comparison{% endblock %} {% block content %}
+<div class="container mt-4">
+  <!-- Header -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <h2>📊 Field Performance Comparison</h2>
+      <p class="text-muted">Compare irrigation performance across all your fields</p>
+    </div>
+  </div>
+
+  {% if field_performances %}
+  <!-- Performance Summary -->
+  <div class="row mb-4">
+    <div class="col-md-3">
+      <div class="card text-center">
+        <div class="card-body">
+          <h3 class="text-primary">{{ total_fields }}</h3>
+          <p class="card-text">Fields Compared</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card text-center">
+        <div class="card-body">
+          <h3 class="text-success">
+            {% for fp in field_performances %} {% if forloop.first %} {{ fp.performance.water_use_efficiency|floatformat:1 }} {% endif %} {% endfor %}
+          </h3>
+          <p class="card-text">Best Efficiency</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card text-center">
+        <div class="card-body">
+          <h3 class="text-info">
+            {% for fp in field_performances %} {% if forloop.last %} {{ fp.performance.water_use_efficiency|floatformat:1 }} {% endif %} {% endfor %}
+          </h3>
+          <p class="card-text">Lowest Efficiency</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card text-center">
+        <div class="card-body">
+          <h3 class="text-warning">
+            {% for fp in field_performances %} {% if forloop.first %} ${{ fp.performance.cost_savings|floatformat:1 }} {% endif %} {% endfor %}
+          </h3>
+          <p class="card-text">Highest Savings</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Comparison Table -->
+  <div class="card">
+    <div class="card-header">
+      <h5 class="mb-0">📈 Performance Comparison Table</h5>
+    </div>
+    <div class="card-body">
+      <div class="table-responsive">
+        <table class="table table-hover">
+          <thead class="table-light">
+            <tr>
+              <th>Field Name</th>
+              <th>Crop</th>
+              <th>Water Efficiency</th>
+              <th>Cost Savings</th>
+              <th>Confidence</th>
+              <th>Irrigation Rate</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for fp in field_performances %}
+            <tr>
+              <td>
+                <strong>{{ fp.field.name }}</strong>
+                <br /><small class="text-muted">{{ fp.field.soil_type|title }}</small>
+              </td>
+              <td>
+                <span class="badge bg-primary">{{ fp.field.crop_type|title }}</span>
+              </td>
+              <td>
+                <div class="d-flex align-items-center">
+                  <div class="progress flex-grow-1 me-2" style="height: 20px">
+                    <div
+                      class="progress-bar {% if fp.performance.water_use_efficiency > 0.8 %}bg-success{% elif fp.performance.water_use_efficiency > 0.6 %}bg-warning{% else %}bg-danger{% endif %}"
+                      style="width: {{ fp.performance.water_use_efficiency|floatformat:0 }}%"
+                    >
+                      {{ fp.performance.water_use_efficiency|floatformat:1 }}
+                    </div>
+                  </div>
+                  <small class="text-muted">{{ fp.performance.water_use_efficiency|floatformat:0 }}%</small>
+                </div>
+              </td>
+              <td>
+                <span class="text-success fw-bold">${{ fp.performance.cost_savings|floatformat:1 }}</span>
+                <br /><small class="text-muted">{{ fp.performance.water_saved|floatformat:1 }}mm saved</small>
+              </td>
+              <td>
+                <span
+                  class="badge {% if fp.performance.avg_confidence > 0.7 %}bg-success{% elif fp.performance.avg_confidence > 0.4 %}bg-warning{% else %}bg-danger{% endif %}"
+                >
+                  {{ fp.performance.avg_confidence|floatformat:1 }}
+                </span>
+              </td>
+              <td>
+                <span
+                  class="badge {% if fp.performance.irrigation_frequency > 0.8 %}bg-warning{% elif fp.performance.irrigation_frequency > 0.5 %}bg-info{% else %}bg-success{% endif %}"
+                >
+                  {{ fp.performance.irrigation_frequency|floatformat:1 }}%
+                </span>
+              </td>
+              <td>
+                <div class="btn-group btn-group-sm">
+                  <a href="{% url 'advisory:field_analytics' fp.field.id %}" class="btn btn-outline-primary"> 📊 Analytics </a>
+                  <a href="{% url 'advisory:get_advice' fp.field.id %}" class="btn btn-outline-success"> 💧 Advice </a>
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Performance Insights -->
+  <div class="row mt-4">
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-header">
+          <h6 class="mb-0">🏆 Top Performers</h6>
+        </div>
+        <div class="card-body">
+          {% for fp in field_performances|slice:":3" %}
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <div>
+              <strong>{{ fp.field.name }}</strong>
+              <br /><small class="text-muted">{{ fp.field.crop_type|title }}</small>
+            </div>
+            <div class="text-end">
+              <span class="badge bg-success">{{ fp.performance.water_use_efficiency|floatformat:1 }}</span>
+              <br /><small class="text-muted">${{ fp.performance.cost_savings|floatformat:1 }} saved</small>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-header">
+          <h6 class="mb-0">📈 Improvement Opportunities</h6>
+        </div>
+        <div class="card-body">
+          {% for fp in field_performances|slice:"-3:" %}
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <div>
+              <strong>{{ fp.field.name }}</strong>
+              <br /><small class="text-muted">{{ fp.field.crop_type|title }}</small>
+            </div>
+            <div class="text-end">
+              <span class="badge bg-warning">{{ fp.performance.water_use_efficiency|floatformat:1 }}</span>
+              <br /><small class="text-muted">Needs attention</small>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {% else %}
+  <!-- No Data State -->
+  <div class="text-center py-5">
+    <div class="mb-4">
+      <h3 class="text-muted">No fields to compare</h3>
+      <p class="text-muted">Add multiple fields to see performance comparisons.</p>
+    </div>
+    <a href="{% url 'advisory:create_field' %}" class="btn btn-primary btn-lg"> 🌱 Add Your First Field </a>
+  </div>
+  {% endif %}
+
+  <!-- Quick Actions -->
+  <div class="row mt-4">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-header">
+          <h6 class="mb-0">Quick Actions</h6>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-3 mb-2">
+              <a href="{% url 'advisory:system_analytics' %}" class="btn btn-outline-primary w-100"> 📊 System Analytics </a>
+            </div>
+            <div class="col-md-3 mb-2">
+              <a href="{% url 'advisory:dashboard' %}" class="btn btn-outline-info w-100"> 🏠 Main Dashboard </a>
+            </div>
+            <div class="col-md-3 mb-2">
+              <a href="{% url 'advisory:field_list' %}" class="btn btn-outline-secondary w-100"> 🌾 View Fields </a>
+            </div>
+            <div class="col-md-3 mb-2">
+              <a href="{% url 'advisory:create_field' %}" class="btn btn-outline-success w-100"> ➕ Add Field </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -55,7 +55,8 @@
         <div class="card-footer">
           <div class="btn-group btn-group-sm w-100">
             <a href="{% url 'advisory:get_advice' field.id %}" class="btn btn-outline-success"> 💧 Advice </a>
-            <a href="{% url 'advisory:advisory_history' field.id %}" class="btn btn-outline-primary"> 📋 History </a>
+            <a href="{% url 'advisory:field_analytics' field.id %}" class="btn btn-outline-primary"> 📊 Analytics </a>
+            <a href="{% url 'advisory:advisory_history' field.id %}" class="btn btn-outline-info"> 📋 History </a>
             <a href="{% url 'advisory:field_map' field.id %}" class="btn btn-outline-secondary"> 🗺️ Map </a>
           </div>
         </div>

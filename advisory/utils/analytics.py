@@ -8,7 +8,7 @@ from typing import Dict, Any, List, Tuple
 from datetime import date, timedelta
 from django.db.models import Avg, Count, Sum, Q
 from django.utils import timezone
-from .models import FarmField, IrrigationAdvisory
+from advisory.models import FarmField, IrrigationAdvisory
 from .crop_coefficients import get_crop_info
 
 logger = logging.getLogger(__name__)

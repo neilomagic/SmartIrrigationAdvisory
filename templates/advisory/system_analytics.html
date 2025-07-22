@@ -1,0 +1,250 @@
+{% extends "base.html" %} {% block title %}System Analytics{% endblock %} {% block content %}
+<div class="container mt-4">
+  <!-- Header -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <h2>📊 System Analytics Dashboard</h2>
+      <p class="text-muted">Comprehensive insights across all fields and crops</p>
+    </div>
+  </div>
+
+  <!-- System Health Cards -->
+  <div class="row mb-4">
+    <div class="col-md-3">
+      <div class="card text-center">
+        <div class="card-body">
+          <h3 class="text-primary">{{ total_fields }}</h3>
+          <p class="card-text">Total Fields</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card text-center">
+        <div class="card-body">
+          <h3 class="text-success">{{ total_advisories }}</h3>
+          <p class="card-text">Total Advisories</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card text-center">
+        <div class="card-body">
+          <h3 class="text-info">{{ system_data.crop_distribution|length }}</h3>
+          <p class="card-text">Crop Types</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card text-center">
+        <div class="card-body">
+          <h3 class="{% if system_data.system_health.status == 'healthy' %}text-success{% else %}text-warning{% endif %}">
+            {{ system_data.system_health.status|title }}
+          </h3>
+          <p class="card-text">System Status</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <!-- Main Analytics -->
+    <div class="col-md-8">
+      <!-- Crop Performance -->
+      <div class="card mb-4">
+        <div class="card-header">
+          <h5 class="mb-0">🌱 Crop Performance Analysis</h5>
+        </div>
+        <div class="card-body">
+          {% if system_data.crop_efficiency %}
+          <div class="table-responsive">
+            <table class="table table-hover">
+              <thead class="table-light">
+                <tr>
+                  <th>Crop Type</th>
+                  <th>Fields</th>
+                  <th>Water Efficiency</th>
+                  <th>Performance</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for crop, efficiency in system_data.crop_efficiency.items %}
+                <tr>
+                  <td>
+                    <strong>{{ crop|title }}</strong>
+                  </td>
+                  <td>
+                    <span class="badge bg-secondary">{{ system_data.crop_distribution|default:0 }}</span>
+                  </td>
+                  <td>
+                    <div class="progress" style="height: 20px">
+                      <div
+                        class="progress-bar {% if efficiency > 0.8 %}bg-success{% elif efficiency > 0.6 %}bg-warning{% else %}bg-danger{% endif %}"
+                        style="width: {{ efficiency|floatformat:0 }}%"
+                      >
+                        {{ efficiency|floatformat:1 }}
+                      </div>
+                    </div>
+                  </td>
+                  <td>
+                    {% if efficiency > 0.8 %}
+                    <span class="badge bg-success">Excellent</span>
+                    {% elif efficiency > 0.6 %}
+                    <span class="badge bg-warning">Good</span>
+                    {% else %}
+                    <span class="badge bg-danger">Needs Improvement</span>
+                    {% endif %}
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          {% else %}
+          <p class="text-muted">No crop performance data available.</p>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Data Quality Analysis -->
+      <div class="card mb-4">
+        <div class="card-header">
+          <h5 class="mb-0">🔍 Data Quality Analysis</h5>
+        </div>
+        <div class="card-body">
+          {% if system_data.data_source_quality %}
+          <div class="row">
+            {% for source, data in system_data.data_source_quality.items %}
+            <div class="col-md-6 mb-3">
+              <div class="border rounded p-3">
+                <h6>{{ source|upper }} Data</h6>
+                <p><strong>Count:</strong> {{ data.count }}</p>
+                <p>
+                  <strong>Avg Confidence:</strong>
+                  <span class="badge {% if data.avg_confidence > 0.7 %}bg-success{% elif data.avg_confidence > 0.4 %}bg-warning{% else %}bg-danger{% endif %}">
+                    {{ data.avg_confidence|floatformat:2 }}
+                  </span>
+                </p>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+          {% else %}
+          <p class="text-muted">No data source quality information available.</p>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Seasonal Patterns -->
+      <div class="card">
+        <div class="card-header">
+          <h5 class="mb-0">📅 Seasonal Patterns</h5>
+        </div>
+        <div class="card-body">
+          {% if system_data.seasonal_patterns %}
+          <div class="row">
+            {% for month, rate in system_data.seasonal_patterns.items %}
+            <div class="col-md-3 mb-2">
+              <div class="text-center">
+                <small class="text-muted">{{ month }}</small>
+                <div class="fw-bold">{{ rate|floatformat:1 }}%</div>
+                <div class="progress" style="height: 8px">
+                  <div class="progress-bar bg-info" style="width: {{ rate|floatformat:0 }}%"></div>
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+          {% else %}
+          <p class="text-muted">No seasonal pattern data available.</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="col-md-4">
+      <!-- System Health -->
+      <div class="card mb-3">
+        <div class="card-header">
+          <h6 class="mb-0">🏥 System Health</h6>
+        </div>
+        <div class="card-body">
+          <p>
+            <strong>Field Coverage:</strong>
+            <span
+              class="badge {% if system_data.system_health.field_coverage > 0.7 %}bg-success{% elif system_data.system_health.field_coverage > 0.4 %}bg-warning{% else %}bg-danger{% endif %}"
+            >
+              {{ system_data.system_health.field_coverage|floatformat:0 }}%
+            </span>
+          </p>
+          <p><strong>Recent Activity:</strong> {{ system_data.system_health.recent_activity }} advisories</p>
+          <p>
+            <strong>Avg Confidence:</strong>
+            <span
+              class="badge {% if system_data.system_health.avg_confidence > 0.7 %}bg-success{% elif system_data.system_health.avg_confidence > 0.4 %}bg-warning{% else %}bg-danger{% endif %}"
+            >
+              {{ system_data.system_health.avg_confidence|floatformat:2 }}
+            </span>
+          </p>
+          <p>
+            <strong>Status:</strong>
+            <span class="badge {% if system_data.system_health.status == 'healthy' %}bg-success{% else %}bg-warning{% endif %}">
+              {{ system_data.system_health.status|title }}
+            </span>
+          </p>
+        </div>
+      </div>
+
+      <!-- Regional Analysis -->
+      {% if system_data.regional_analysis %}
+      <div class="card mb-3">
+        <div class="card-header">
+          <h6 class="mb-0">🌍 Regional Analysis</h6>
+        </div>
+        <div class="card-body">
+          {% for region, data in system_data.regional_analysis.items %}
+          <div class="mb-2">
+            <strong>{{ region|title }}:</strong> {{ data.fields }} fields {% if data.avg_efficiency > 0 %} <br /><small class="text-muted"
+              >Avg efficiency: {{ data.avg_efficiency|floatformat:2 }}</small
+            >
+            {% endif %}
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- System Insights -->
+      <div class="card mb-3">
+        <div class="card-header">
+          <h6 class="mb-0">💡 System Insights</h6>
+        </div>
+        <div class="card-body">
+          {% if system_data.insights %}
+          <ul class="list-unstyled">
+            {% for insight in system_data.insights %}
+            <li class="mb-2">• {{ insight }}</li>
+            {% endfor %}
+          </ul>
+          {% else %}
+          <p class="text-muted">No insights available.</p>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="card">
+        <div class="card-header">
+          <h6 class="mb-0">Quick Actions</h6>
+        </div>
+        <div class="card-body">
+          <a href="{% url 'advisory:performance_comparison' %}" class="btn btn-outline-primary btn-sm w-100 mb-2"> 📊 Compare Fields </a>
+          <a href="{% url 'advisory:dashboard' %}" class="btn btn-outline-info btn-sm w-100 mb-2"> 🏠 Main Dashboard </a>
+          <a href="{% url 'advisory:field_list' %}" class="btn btn-outline-secondary btn-sm w-100 mb-2"> 🌾 View Fields </a>
+          <a href="{% url 'advisory:create_field' %}" class="btn btn-outline-success btn-sm w-100"> ➕ Add Field </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
