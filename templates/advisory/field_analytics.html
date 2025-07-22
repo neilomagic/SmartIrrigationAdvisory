@@ -1,4 +1,7 @@
-{% extends "base.html" %} {% block title %}Field Analytics - {{ field.name }}{% endblock %} {% block content %}
+{% extends "base.html" %} {% block title %}Field Analytics - {{ field.name }}{% endblock %} {% block breadcrumb %}
+<li class="breadcrumb-item"><a href="{% url 'advisory:field_list' %}">My Fields</a></li>
+<li class="breadcrumb-item active">{{ field.name }} - Analytics</li>
+{% endblock %} {% block content %}
 <div class="container mt-4">
   <!-- Header -->
   <div class="row mb-4">

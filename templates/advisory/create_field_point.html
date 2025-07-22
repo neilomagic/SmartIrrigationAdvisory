@@ -1,24 +1,128 @@
-{% extends "base.html" %} {% block title %}Smart Advisory - Create Field{% endblock %} {% block content %}
-<div class="row">
-  <div class="col-md-8">
-    <div class="card">
-      <div class="card-header bg-primary text-white">📍 Select Your Field Location</div>
-      <div class="card-body p-0">
-        <div id="map" style="height: 500px"></div>
+{% extends "base.html" %} {% block title %}Add New Field{% endblock %} {% block breadcrumb %}
+<li class="breadcrumb-item"><a href="{% url 'advisory:field_list' %}">My Fields</a></li>
+<li class="breadcrumb-item active">Add New Field</li>
+{% endblock %} {% block content %}
+<div class="container mt-4">
+  <!-- Header -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="text-center">
+        <h2>🌱 Add New Field</h2>
+        <p class="text-muted">Select your field location and enter details to get irrigation advice</p>
       </div>
     </div>
   </div>
 
-  <div class="col-md-4">
-    <div class="card">
-      <div class="card-header bg-success text-white">📝 Field Details</div>
-      <div class="card-body">
-        <form method="post">
-          {% csrf_token %} {{ form.as_p }}
-          <div class="text-end">
-            <button type="submit" class="btn btn-success mt-2">💾 Save Field</button>
-          </div>
-        </form>
+  <div class="row">
+    <div class="col-md-8">
+      <div class="card">
+        <div class="card-header bg-primary text-white">
+          <h5 class="mb-0">📍 Select Your Field Location</h5>
+        </div>
+        <div class="card-body p-0">
+          <div id="map" style="height: 500px"></div>
+        </div>
+        <div class="card-footer">
+          <small class="text-muted"> 💡 Click on the map to select your field location, or use your current location </small>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="card">
+        <div class="card-header bg-success text-white">
+          <h5 class="mb-0">📝 Field Details</h5>
+        </div>
+        <div class="card-body">
+          <form method="post">
+            {% csrf_token %}
+
+            <!-- Field Name -->
+            <div class="mb-3">
+              <label for="{{ form.name.id_for_label }}" class="form-label">
+                <strong>Field Name</strong>
+              </label>
+              {{ form.name }} {% if form.name.help_text %}
+              <div class="form-text">{{ form.name.help_text }}</div>
+              {% endif %}
+            </div>
+
+            <!-- Crop Type -->
+            <div class="mb-3">
+              <label for="{{ form.crop_type.id_for_label }}" class="form-label">
+                <strong>Crop Type</strong>
+              </label>
+              {{ form.crop_type }} {% if form.crop_type.help_text %}
+              <div class="form-text">{{ form.crop_type.help_text }}</div>
+              {% endif %}
+            </div>
+
+            <!-- Planting Date -->
+            <div class="mb-3">
+              <label for="{{ form.planting_date.id_for_label }}" class="form-label">
+                <strong>Planting Date</strong>
+              </label>
+              {{ form.planting_date }} {% if form.planting_date.help_text %}
+              <div class="form-text">{{ form.planting_date.help_text }}</div>
+              {% endif %}
+            </div>
+
+            <!-- Soil Type -->
+            <div class="mb-3">
+              <label for="{{ form.soil_type.id_for_label }}" class="form-label">
+                <strong>Soil Type</strong>
+              </label>
+              {{ form.soil_type }} {% if form.soil_type.help_text %}
+              <div class="form-text">{{ form.soil_type.help_text }}</div>
+              {% endif %}
+            </div>
+
+            <!-- Field Area -->
+            <div class="mb-3">
+              <label for="{{ form.field_area_ha.id_for_label }}" class="form-label">
+                <strong>Field Area (ha)</strong>
+              </label>
+              {{ form.field_area_ha }} {% if form.field_area_ha.help_text %}
+              <div class="form-text">{{ form.field_area_ha.help_text }}</div>
+              {% endif %}
+            </div>
+
+            <!-- Elevation -->
+            <div class="mb-3">
+              <label for="{{ form.elevation.id_for_label }}" class="form-label">
+                <strong>Elevation (m)</strong>
+                <small class="text-muted">Optional</small>
+              </label>
+              {{ form.elevation }} {% if form.elevation.help_text %}
+              <div class="form-text">{{ form.elevation.help_text }}</div>
+              {% endif %}
+            </div>
+
+            <!-- Hidden coordinates -->
+            {{ form.latitude }} {{ form.longitude }}
+
+            <!-- Submit Button -->
+            <div class="d-grid">
+              <button type="submit" class="btn btn-success btn-lg">💾 Save Field & Get Advice</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Help Section -->
+      <div class="card mt-3">
+        <div class="card-header">
+          <h6 class="mb-0">❓ Need Help?</h6>
+        </div>
+        <div class="card-body">
+          <ul class="list-unstyled small">
+            <li>📍 Click on the map to set location</li>
+            <li>🌱 Select the crop you planted</li>
+            <li>📅 Enter when you planted</li>
+            <li>🌍 Choose your soil type</li>
+            <li>📏 Enter field area (optional)</li>
+          </ul>
+        </div>
       </div>
     </div>
   </div>
