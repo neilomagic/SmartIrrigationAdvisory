@@ -4,102 +4,120 @@
 {% endblock %} {% block content %}
 <div class="container mt-4">
   {% if error %}
-  <div class="alert alert-warning">
-    <h5>⚠️ {{ error }}</h5>
-    <p>Using fallback data for basic recommendations.</p>
+  <div class="alert alert-danger">
+    <h5>⚠️ Error Generating Advice</h5>
+    <p>{{ error }}</p>
+    <a href="{% url 'advisory:field_list' %}" class="btn btn-primary">Back to Fields</a>
   </div>
-  {% endif %}
+  {% else %}
+  <!-- Header -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <h2>💧 Irrigation Advice</h2>
+          <p class="text-muted">{{ field.name }} - {{ field.crop_type|title }}</p>
+        </div>
+        <div class="text-end">
+          <span class="badge {% if data_source == 'GEE' %}bg-success{% else %}bg-warning{% endif %}"> 📊 {{ data_source|upper }} Data </span>
+          <br />
+          <small class="text-muted">Confidence: {{ confidence|floatformat:1 }}</small>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <div class="row">
+    <!-- Main Advice Card -->
     <div class="col-md-8">
-      <!-- Main Advisory Card -->
-      <div class="card mb-4">
-        <div class="card-header d-flex justify-content-between align-items-center">
-          <h5 class="mb-0">
-            {% if recommendation.priority == 'high' %}🔴{% elif recommendation.priority == 'medium' %}🟡{% else %}🟢{% endif %} Irrigation Advisory - {{
-            field.crop_type|title }}
-          </h5>
-          <span
-            class="badge {% if recommendation.priority == 'high' %}bg-danger{% elif recommendation.priority == 'medium' %}bg-warning{% else %}bg-success{% endif %}"
-          >
-            {{ recommendation.priority|title }} Priority
-          </span>
+      <div class="card">
+        <div class="card-header bg-primary text-white">
+          <h5 class="mb-0">{% if recommendation.irrigation_needed %} 💧 Irrigation Recommended {% else %} ✅ No Irrigation Needed {% endif %}</h5>
         </div>
         <div class="card-body">
-          <!-- Field Information -->
-          <div class="row mb-3">
-            <div class="col-md-6">
-              <h6>Field Details</h6>
-              <p><strong>Name:</strong> {{ field.name }}</p>
-              <p><strong>Planted:</strong> {{ field.planting_date|date:"M d, Y" }}</p>
-              <p><strong>Soil Type:</strong> {{ field.soil_type|title }}</p>
-              {% if field.field_area_ha %}
-              <p><strong>Area:</strong> {{ field.field_area_ha }} ha</p>
-              {% endif %}
-            </div>
-            <div class="col-md-6">
-              <h6>Crop Information</h6>
-              <p><strong>Stage:</strong> {{ stage }}</p>
-              <p><strong>Crop Coefficient (Kc):</strong> {{ kc }}</p>
-              <p>
-                <strong>Water Sensitivity:</strong>
-                {% if crop_info.water_sensitive %}High{% else %}Low{% endif %}
-              </p>
-              <p><strong>Water Requirement:</strong> {{ crop_info.water_requirement|title }}</p>
-            </div>
-          </div>
-
-          <hr />
-
-          <!-- Recommendation -->
+          <!-- Recommendation Message -->
           <div class="alert {% if recommendation.irrigation_needed %}alert-warning{% else %}alert-success{% endif %}">
-            <h6 class="alert-heading">{% if recommendation.irrigation_needed %}💧 Irrigation Recommended{% else %}✅ No Irrigation Needed{% endif %}</h6>
+            <h6 class="alert-heading">{% if recommendation.irrigation_needed %} 🌱 Irrigation Required {% else %} 🌿 Sufficient Water Available {% endif %}</h6>
             <p class="mb-0">{{ recommendation.recommendation_message }}</p>
           </div>
 
-          <!-- Detailed Metrics -->
+          <!-- Key Metrics -->
+          <div class="row mb-3">
+            <div class="col-md-3">
+              <div class="text-center">
+                <h4 class="text-primary">{{ eto|floatformat:1 }}</h4>
+                <small class="text-muted">ET₀ (mm/day)</small>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="text-center">
+                <h4 class="text-info">{{ rain|floatformat:1 }}</h4>
+                <small class="text-muted">Rainfall (mm/week)</small>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="text-center">
+                <h4 class="text-success">{{ soil_moisture|floatformat:2 }}</h4>
+                <small class="text-muted">Soil Moisture (NDMI)</small>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="text-center">
+                <h4 class="text-warning">{{ recommendation.irrigation_volume|floatformat:1 }}</h4>
+                <small class="text-muted">Irrigation (mm)</small>
+              </div>
+            </div>
+          </div>
+
+          <!-- Detailed Information -->
           <div class="row">
             <div class="col-md-6">
-              <h6>Weather Data</h6>
-              <p><strong>ET₀:</strong> {{ eto }} mm/day</p>
-              <p><strong>Weekly Rainfall:</strong> {{ rain }} mm</p>
-              <p><strong>Soil Moisture (NDMI):</strong> {{ soil_moisture|floatformat:3 }}</p>
-              <p>
-                <strong>Data Source:</strong>
-                <span class="badge {% if data_source == 'GEE' %}bg-success{% elif data_source == 'API' %}bg-info{% else %}bg-secondary{% endif %}">
-                  {{ data_source|upper }}
-                </span>
-              </p>
+              <h6>🌾 Crop Information</h6>
+              <ul class="list-unstyled">
+                <li><strong>Crop:</strong> {{ field.crop_type|title }}</li>
+                <li><strong>Stage:</strong> {{ stage }}</li>
+                <li><strong>Crop Coefficient (Kc):</strong> {{ kc|floatformat:2 }}</li>
+                <li><strong>Planted:</strong> {{ field.planting_date|date:"M d, Y" }}</li>
+              </ul>
             </div>
             <div class="col-md-6">
-              <h6>Analysis Results</h6>
-              <p>
-                <strong>Water Stress Index:</strong>
-                <span
-                  class="badge {% if recommendation.water_stress_index > 0.7 %}bg-danger{% elif recommendation.water_stress_index > 0.4 %}bg-warning{% else %}bg-success{% endif %}"
-                >
-                  {{ recommendation.water_stress_index|floatformat:2 }}
-                </span>
-              </p>
-              <p>
-                <strong>Drought Risk:</strong>
-                <span
-                  class="badge {% if recommendation.drought_risk > 0.7 %}bg-danger{% elif recommendation.drought_risk > 0.4 %}bg-warning{% else %}bg-success{% endif %}"
-                >
-                  {{ recommendation.drought_risk|floatformat:2 }}
-                </span>
-              </p>
-              <p>
-                <strong>Confidence Score:</strong>
-                <span class="badge {% if confidence > 0.7 %}bg-success{% elif confidence > 0.4 %}bg-warning{% else %}bg-secondary{% endif %}">
-                  {{ confidence|floatformat:2 }}
-                </span>
-              </p>
-              {% if recommendation.irrigation_needed %}
-              <p><strong>Recommended Volume:</strong> {{ recommendation.irrigation_volume }} mm</p>
-              <p><strong>Timing:</strong> {{ recommendation.timing|title }}</p>
-              <p><strong>Method:</strong> {{ recommendation.method|title }}</p>
-              {% endif %}
+              <h6>🌍 Field Conditions</h6>
+              <ul class="list-unstyled">
+                <li><strong>Soil Type:</strong> {{ field.soil_type|title }}</li>
+                {% if field.field_area_ha %}
+                <li><strong>Area:</strong> {{ field.field_area_ha }} ha</li>
+                {% endif %} {% if field.elevation %}
+                <li><strong>Elevation:</strong> {{ field.elevation }}m</li>
+                {% endif %}
+                <li><strong>Location:</strong> {{ field.latitude|floatformat:4 }}, {{ field.longitude|floatformat:4 }}</li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Risk Assessment -->
+          <div class="mt-3">
+            <h6>⚠️ Risk Assessment</h6>
+            <div class="row">
+              <div class="col-md-6">
+                <div class="d-flex justify-content-between">
+                  <span>Water Stress:</span>
+                  <span
+                    class="badge {% if recommendation.water_stress_index > 0.7 %}bg-danger{% elif recommendation.water_stress_index > 0.4 %}bg-warning{% else %}bg-success{% endif %}"
+                  >
+                    {{ recommendation.water_stress_index|floatformat:2 }}
+                  </span>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="d-flex justify-content-between">
+                  <span>Drought Risk:</span>
+                  <span
+                    class="badge {% if recommendation.drought_risk > 0.7 %}bg-danger{% elif recommendation.drought_risk > 0.4 %}bg-warning{% else %}bg-success{% endif %}"
+                  >
+                    {{ recommendation.drought_risk|floatformat:2 }}
+                  </span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -108,49 +126,119 @@
 
     <!-- Sidebar -->
     <div class="col-md-4">
-      <!-- Quick Actions -->
+      <!-- Data Quality Card -->
       <div class="card mb-3">
         <div class="card-header">
-          <h6 class="mb-0">Quick Actions</h6>
+          <h6 class="mb-0">📊 Data Quality</h6>
         </div>
         <div class="card-body">
-          <a href="{% url 'advisory:advisory_history' field.id %}" class="btn btn-outline-primary btn-sm w-100 mb-2"> 📋 View History </a>
-          <a href="{% url 'advisory:field_map' field.id %}" class="btn btn-outline-secondary btn-sm w-100 mb-2"> 🗺️ Field Map </a>
-          <a href="{% url 'advisory:field_list' %}" class="btn btn-outline-info btn-sm w-100"> 📊 All Fields </a>
+          <div class="mb-2">
+            <div class="d-flex justify-content-between">
+              <span>Data Source:</span>
+              <span class="badge {% if data_source == 'GEE' %}bg-success{% else %}bg-warning{% endif %}"> {{ data_source|upper }} </span>
+            </div>
+          </div>
+          <div class="mb-2">
+            <div class="d-flex justify-content-between">
+              <span>Confidence:</span>
+              <span>{{ confidence|floatformat:1 }}</span>
+            </div>
+            <div class="progress" style="height: 6px">
+              <div
+                class="progress-bar {% if confidence > 0.7 %}bg-success{% elif confidence > 0.4 %}bg-warning{% else %}bg-danger{% endif %}"
+                style="width: {{ confidence|floatformat:0 }}%"
+              ></div>
+            </div>
+          </div>
+          <div class="mb-2">
+            <div class="d-flex justify-content-between">
+              <span>GEE Status:</span>
+              <span class="badge {% if weather_data.gee_initialized %}bg-success{% else %}bg-danger{% endif %}">
+                {% if weather_data.gee_initialized %}Connected{% else %}Disconnected{% endif %}
+              </span>
+            </div>
+          </div>
+          <small class="text-muted"> Last updated: {{ formatted_timestamp }} </small>
         </div>
       </div>
 
-      <!-- Weather Summary -->
-      <div class="card">
+      <!-- Weather Forecast -->
+      <div class="card mb-3">
         <div class="card-header">
-          <h6 class="mb-0">Weather Summary</h6>
+          <h6 class="mb-0">🌤️ Weather Forecast</h6>
         </div>
         <div class="card-body">
-          <div class="row text-center">
-            <div class="col-6">
-              <div class="border rounded p-2">
-                <small class="text-muted">ET₀</small>
-                <div class="fw-bold">{{ eto }} mm/day</div>
-              </div>
-            </div>
-            <div class="col-6">
-              <div class="border rounded p-2">
-                <small class="text-muted">Rainfall</small>
-                <div class="fw-bold">{{ rain }} mm/week</div>
-              </div>
-            </div>
+          <div class="d-flex justify-content-between mb-2">
+            <span>Temperature:</span>
+            <span>{{ weather_data.forecast.temperature }}°C</span>
           </div>
-          <div class="row text-center mt-2">
-            <div class="col-6">
-              <div class="border rounded p-2">
-                <small class="text-muted">Soil Moisture</small>
-                <div class="fw-bold">{{ soil_moisture|floatformat:2 }}</div>
+          <div class="d-flex justify-content-between mb-2">
+            <span>Precipitation:</span>
+            <span>{{ weather_data.forecast.precipitation }} mm</span>
+          </div>
+          <div class="d-flex justify-content-between">
+            <span>Forecast Period:</span>
+            <span>{{ weather_data.forecast.days }} days</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="card">
+        <div class="card-header">
+          <h6 class="mb-0">⚡ Quick Actions</h6>
+        </div>
+        <div class="card-body">
+          <div class="d-grid gap-2">
+            <a href="{% url 'advisory:field_analytics' field.id %}" class="btn btn-outline-primary btn-sm"> 📊 View Analytics </a>
+            <a href="{% url 'advisory:advisory_history' field.id %}" class="btn btn-outline-info btn-sm"> 📋 Advisory History </a>
+            <a href="{% url 'advisory:field_map' field.id %}" class="btn btn-outline-secondary btn-sm"> 🗺️ Field Map </a>
+            <a href="{% url 'advisory:field_list' %}" class="btn btn-outline-dark btn-sm"> ← Back to Fields </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- EO Data Sources Info -->
+  <div class="row mt-4">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-header">
+          <h6 class="mb-0">🌍 Earth Observation Data Sources</h6>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-3">
+              <div class="text-center">
+                <h6>🌧️ Rainfall</h6>
+                <small class="text-muted">CHIRPS Dataset</small>
+                <br />
+                <span class="badge bg-info">UCSB-CHG/CHIRPS/DAILY</span>
               </div>
             </div>
-            <div class="col-6">
-              <div class="border rounded p-2">
-                <small class="text-muted">Confidence</small>
-                <div class="fw-bold">{{ confidence|floatformat:1 }}</div>
+            <div class="col-md-3">
+              <div class="text-center">
+                <h6>☀️ Evapotranspiration</h6>
+                <small class="text-muted">ERA5 Dataset</small>
+                <br />
+                <span class="badge bg-info">ECMWF/ERA5_LAND/DAILY_AGGR</span>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="text-center">
+                <h6>🌱 Soil Moisture</h6>
+                <small class="text-muted">Sentinel-2 NDMI</small>
+                <br />
+                <span class="badge bg-info">COPERNICUS/S2_SR</span>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="text-center">
+                <h6>🌤️ Weather Forecast</h6>
+                <small class="text-muted">GFS Dataset</small>
+                <br />
+                <span class="badge bg-info">NOAA/GFS0P25</span>
               </div>
             </div>
           </div>
@@ -158,5 +246,6 @@
       </div>
     </div>
   </div>
+  {% endif %}
 </div>
 {% endblock %}

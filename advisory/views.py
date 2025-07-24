@@ -91,6 +91,20 @@ def get_irrigation_advice(request, field_id):
             data_source=weather_data['data_source']
         )
 
+        # Format timestamp for display
+        timestamp = weather_data.get('timestamp', '')
+        if timestamp:
+            # Convert ISO format to readable format
+            try:
+                from datetime import datetime
+                dt = datetime.fromisoformat(timestamp.replace('Z', '+00:00'))
+                formatted_timestamp = dt.strftime('%Y-%m-%d %H:%M:%S')
+            except:
+                # Fallback to first 19 characters
+                formatted_timestamp = timestamp[:19]
+        else:
+            formatted_timestamp = 'Unknown'
+
         # Prepare context for template
         context = {
             'field': field,
@@ -107,7 +121,8 @@ def get_irrigation_advice(request, field_id):
             'data_source': weather_data['data_source'],
             'priority': recommendation['priority'],
             'timing': recommendation['timing'],
-            'method': recommendation['method']
+            'method': recommendation['method'],
+            'formatted_timestamp': formatted_timestamp
         }
 
         return render(request, 'advisory/advice.html', context)
@@ -119,7 +134,8 @@ def get_irrigation_advice(request, field_id):
         return render(request, 'advisory/advice.html', {
             'field': field,
             'error': 'Unable to generate irrigation advice. Please try again later.',
-            'fallback': True
+            'fallback': True,
+            'formatted_timestamp': 'Unknown'
         })
 
 

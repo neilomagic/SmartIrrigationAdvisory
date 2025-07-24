@@ -67,7 +67,8 @@ class FarmField(models.Model):
 
 
 class IrrigationAdvisory(models.Model):
-    field = models.ForeignKey(FarmField, on_delete=models.CASCADE)
+    field = models.ForeignKey(
+        FarmField, on_delete=models.CASCADE, related_name='advisories')
     date = models.DateField(default=date.today)
     crop_stage = models.CharField(max_length=50, default="Initial")
     eto = models.FloatField(default=0.0)  # mm/day

@@ -107,6 +107,14 @@ class IrrigationRecommendationEngine:
             planting_date = field_data.get('planting_date')
             soil_type = field_data.get('soil_type', 'loam')
 
+            # Ensure planting_date is a date object
+            if isinstance(planting_date, str):
+                from datetime import datetime
+                planting_date = datetime.strptime(
+                    planting_date, '%Y-%m-%d').date()
+            elif planting_date is None:
+                planting_date = date.today()
+
             # Calculate crop water need
             kc, stage = get_kc(crop_type, planting_date)
             daily_eto = weather_data.get('daily_eto', 0)
