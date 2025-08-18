@@ -18,7 +18,7 @@ urlpatterns = [
          name='performance_comparison'),
 
     # Existing URLs
-    path('', views.create_field_view, name='create_field'),
+    path('', views.dashboard_view, name='dashboard'),
     path('create/', views.create_field_view, name='create_field'),
     path('field/<int:field_id>/advice/',
          views.get_irrigation_advice, name='get_advice'),
