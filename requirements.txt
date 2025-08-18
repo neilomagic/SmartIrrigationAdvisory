@@ -33,3 +33,7 @@ matplotlib==3.7.2
 seaborn==0.12.2
 plotly==5.15.0
 
+# Fix for Python 3.12 distutils issue
+setuptools>=65.0.0
+wheel>=0.38.0
+
