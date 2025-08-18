@@ -70,8 +70,28 @@
 
 /* Enhanced map container */
 #map {
+    border-radius: 0;
+    border: none;
+}
+
+/* Field creation page specific styling */
+.field-creation-page {
+    margin-top: -2rem;
+}
+
+.field-creation-page .container-fluid {
+    padding-top: 0.5rem !important;
+}
+
+/* Map panel height optimization */
+.map-panel-body {
+    min-height: 550px;
+}
+
+/* Overlay help text styling */
+.map-help-overlay {
+    backdrop-filter: blur(2px);
     border-radius: 0 0 8px 8px;
-    border: 2px solid var(--success-border);
 }
 
 /* Custom marker styles */
@@ -244,8 +264,12 @@
         margin-bottom: 1rem;
     }
     
+    .field-creation-page .card-body {
+        min-height: 350px !important;
+    }
+    
     #map {
-        height: 400px !important;
+        height: 100% !important;
     }
     
     .card-header .btn-group {

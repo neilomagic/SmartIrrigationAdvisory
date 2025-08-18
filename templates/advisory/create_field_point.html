@@ -1,10 +1,6 @@
-{% extends "base.html" %} {% block title %}Add New Field{% endblock %} 
-
-{% block breadcrumb %}
+{% extends "base.html" %} {% block title %}Add New Field{% endblock %} {% block breadcrumb %}
 <!-- Override breadcrumb to hide it -->
-{% endblock %}
-
-{% block content %}
+{% endblock %} {% block content %}
 <div class="field-creation-page">
   <div class="container-fluid px-4 py-1">
     <!-- Main Content Section -->
@@ -34,12 +30,12 @@
               </div>
             </div>
           </div>
-                     <div class="card-body p-0 position-relative" style="height: calc(100% - 120px);">
-             <div id="map" style="height: 100%; width: 100%;"></div>
-             <div class="position-absolute bottom-0 start-0 end-0 bg-light bg-opacity-90 border-top border-success p-2">
-               <small class="text-success fw-medium"> 💡 Click on the map to select your field location, or use your current location </small>
-             </div>
-           </div>
+          <div class="card-body p-0 position-relative" style="height: calc(100% - 120px)">
+            <div id="map" style="height: 100%; width: 100%"></div>
+            <div class="position-absolute bottom-0 start-0 end-0 bg-light bg-opacity-90 border-top border-success p-2">
+              <small class="text-success fw-medium"> 💡 Click on the map to select your field location, or use your current location </small>
+            </div>
+          </div>
         </div>
       </div>
 

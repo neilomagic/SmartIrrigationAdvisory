@@ -60,16 +60,6 @@
     </nav>
 
     <!-- Breadcrumb Navigation -->
-    <div class="container mt-3">
-      <nav aria-label="breadcrumb">
-        <ol class="breadcrumb">
-          <li class="breadcrumb-item">
-            <a href="{% url 'advisory:dashboard' %}">📊 Overview</a>
-          </li>
-          {% block breadcrumb %}{% endblock %}
-        </ol>
-      </nav>
-    </div>
 
     <main class="py-3">{% block content %}{% endblock %}</main>
 
