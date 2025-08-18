@@ -21,17 +21,19 @@ class FieldForm(forms.ModelForm):
                 'placeholder': 'Enter field name (e.g., North Field)'
             }),
             'soil_type': forms.Select(attrs={
-                'class': 'form-control'
+                'class': 'form-control',
+                'required': False
             }),
             'crop_type': forms.Select(attrs={
                 'class': 'form-control'
             }),
             'field_area_ha': forms.NumberInput(attrs={
                 'class': 'form-control',
-                'placeholder': 'Field area in hectares',
+                'placeholder': 'Field area in hectares (optional)',
                 'min': '0.1',
                 'max': '1000',
-                'step': '0.1'
+                'step': '0.1',
+                'required': False
             }),
             'elevation': forms.NumberInput(attrs={
                 'class': 'form-control',

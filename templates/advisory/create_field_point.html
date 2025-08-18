@@ -1,127 +1,139 @@
-{% extends "base.html" %} {% block title %}Add New Field{% endblock %} {% block breadcrumb %}
-<li class="breadcrumb-item"><a href="{% url 'advisory:field_list' %}">My Fields</a></li>
-<li class="breadcrumb-item active">Add New Field</li>
-{% endblock %} {% block content %}
-<div class="container mt-4">
-  <!-- Header -->
-  <div class="row mb-4">
-    <div class="col-12">
-      <div class="text-center">
-        <h2>🌱 Add New Field</h2>
-        <p class="text-muted">Select your field location and enter details to get irrigation advice</p>
-      </div>
-    </div>
-  </div>
+{% extends "base.html" %} {% block title %}Add New Field{% endblock %} 
 
-  <div class="row">
-    <div class="col-md-8">
-      <div class="card">
-        <div class="card-header bg-primary text-white">
-          <h5 class="mb-0">📍 Select Your Field Location</h5>
-        </div>
-        <div class="card-body p-0">
-          <div id="map" style="height: 500px"></div>
-        </div>
-        <div class="card-footer">
-          <small class="text-muted"> 💡 Click on the map to select your field location, or use your current location </small>
-        </div>
+{% block breadcrumb %}
+<!-- Override breadcrumb to hide it -->
+{% endblock %}
+
+{% block content %}
+<div class="field-creation-page">
+  <div class="container-fluid px-4 py-1">
+    <!-- Main Content Section -->
+    <div class="row mb-2">
+      <div class="col-12 text-center">
+        <p class="text-muted fs-5 mb-0">Select your field location and enter details to get irrigation advice</p>
       </div>
     </div>
 
-    <div class="col-md-4">
-      <div class="card">
-        <div class="card-header bg-success text-white">
-          <h5 class="mb-0">📝 Field Details</h5>
-        </div>
-        <div class="card-body">
-          <form method="post">
-            {% csrf_token %}
+    <div class="row g-4">
+      <!-- Map Panel -->
+      <div class="col-lg-7">
+        <div class="card border-2 border-success shadow-lg h-100">
+          <div class="card-header bg-success text-white border-0">
+            <h5 class="mb-0 fw-bold">📍 Select Your Field Location</h5>
+            <div class="mt-2">
+              <small class="opacity-75">Choose basemap:</small>
+              <div class="btn-group btn-group-sm ms-2" role="group">
+                <input type="radio" class="btn-check" name="basemap" id="satellite" value="satellite" checked />
+                <label class="btn btn-outline-light" for="satellite">Satellite</label>
 
-            <!-- Field Name -->
-            <div class="mb-3">
-              <label for="{{ form.name.id_for_label }}" class="form-label">
-                <strong>Field Name</strong>
-              </label>
-              {{ form.name }} {% if form.name.help_text %}
-              <div class="form-text">{{ form.name.help_text }}</div>
-              {% endif %}
+                <input type="radio" class="btn-check" name="basemap" id="streets" value="streets" />
+                <label class="btn btn-outline-light" for="streets">Streets</label>
+
+                <input type="radio" class="btn-check" name="basemap" id="terrain" value="terrain" />
+                <label class="btn btn-outline-light" for="terrain">Terrain</label>
+              </div>
             </div>
-
-            <!-- Crop Type -->
-            <div class="mb-3">
-              <label for="{{ form.crop_type.id_for_label }}" class="form-label">
-                <strong>Crop Type</strong>
-              </label>
-              {{ form.crop_type }} {% if form.crop_type.help_text %}
-              <div class="form-text">{{ form.crop_type.help_text }}</div>
-              {% endif %}
-            </div>
-
-            <!-- Planting Date -->
-            <div class="mb-3">
-              <label for="{{ form.planting_date.id_for_label }}" class="form-label">
-                <strong>Planting Date</strong>
-              </label>
-              {{ form.planting_date }} {% if form.planting_date.help_text %}
-              <div class="form-text">{{ form.planting_date.help_text }}</div>
-              {% endif %}
-            </div>
-
-            <!-- Soil Type -->
-            <div class="mb-3">
-              <label for="{{ form.soil_type.id_for_label }}" class="form-label">
-                <strong>Soil Type</strong>
-              </label>
-              {{ form.soil_type }} {% if form.soil_type.help_text %}
-              <div class="form-text">{{ form.soil_type.help_text }}</div>
-              {% endif %}
-            </div>
-
-            <!-- Field Area -->
-            <div class="mb-3">
-              <label for="{{ form.field_area_ha.id_for_label }}" class="form-label">
-                <strong>Field Area (ha)</strong>
-              </label>
-              {{ form.field_area_ha }} {% if form.field_area_ha.help_text %}
-              <div class="form-text">{{ form.field_area_ha.help_text }}</div>
-              {% endif %}
-            </div>
-
-            <!-- Elevation -->
-            <div class="mb-3">
-              <label for="{{ form.elevation.id_for_label }}" class="form-label">
-                <strong>Elevation (m)</strong>
-                <small class="text-muted">Optional</small>
-              </label>
-              {{ form.elevation }} {% if form.elevation.help_text %}
-              <div class="form-text">{{ form.elevation.help_text }}</div>
-              {% endif %}
-            </div>
-
-            <!-- Hidden coordinates -->
-            {{ form.latitude }} {{ form.longitude }}
-
-            <!-- Submit Button -->
-            <div class="d-grid">
-              <button type="submit" class="btn btn-success btn-lg">💾 Save Field & Get Advice</button>
-            </div>
-          </form>
+          </div>
+                     <div class="card-body p-0 position-relative" style="height: calc(100% - 120px);">
+             <div id="map" style="height: 100%; width: 100%;"></div>
+             <div class="position-absolute bottom-0 start-0 end-0 bg-light bg-opacity-90 border-top border-success p-2">
+               <small class="text-success fw-medium"> 💡 Click on the map to select your field location, or use your current location </small>
+             </div>
+           </div>
         </div>
       </div>
 
-      <!-- Help Section -->
-      <div class="card mt-3">
-        <div class="card-header">
-          <h6 class="mb-0">❓ Need Help?</h6>
-        </div>
-        <div class="card-body">
-          <ul class="list-unstyled small">
-            <li>📍 Click on the map to set location</li>
-            <li>🌱 Select the crop you planted</li>
-            <li>📅 Enter when you planted</li>
-            <li>🌍 Choose your soil type</li>
-            <li>📏 Enter field area (optional)</li>
-          </ul>
+      <!-- Field Details Panel -->
+      <div class="col-lg-5">
+        <div class="card border-2 border-success shadow-lg h-100">
+          <div class="card-header bg-success text-white border-0">
+            <h5 class="mb-0 fw-bold">📝 Field Details</h5>
+          </div>
+          <div class="card-body">
+            <form method="post">
+              {% csrf_token %}
+
+              <!-- Field Name -->
+              <div class="mb-3">
+                <label for="{{ form.name.id_for_label }}" class="form-label fw-semibold text-success"> 🏷️ Field Name </label>
+                {{ form.name }} {% if form.name.help_text %}
+                <div class="form-text text-muted small">{{ form.name.help_text }}</div>
+                {% endif %}
+              </div>
+
+              <!-- Crop Type -->
+              <div class="mb-3">
+                <label for="{{ form.crop_type.id_for_label }}" class="form-label fw-semibold text-success"> 🌱 Crop Type </label>
+                {{ form.crop_type }} {% if form.crop_type.help_text %}
+                <div class="form-text text-muted small">{{ form.crop_type.help_text }}</div>
+                {% endif %}
+              </div>
+
+              <!-- Planting Date -->
+              <div class="mb-3">
+                <label for="{{ form.planting_date.id_for_label }}" class="form-label fw-semibold text-success"> 📅 Planting Date </label>
+                {{ form.planting_date }} {% if form.planting_date.help_text %}
+                <div class="form-text text-muted small">{{ form.planting_date.help_text }}</div>
+                {% endif %}
+              </div>
+
+              <!-- Optional Fields Section -->
+              <div class="border-top pt-3 mt-4">
+                <h6 class="text-success fw-semibold mb-3">📋 Optional Details</h6>
+
+                <!-- Soil Type -->
+                <div class="mb-3">
+                  <label for="{{ form.soil_type.id_for_label }}" class="form-label fw-medium text-secondary">
+                    🌍 Soil Type <small class="text-muted">(Optional)</small>
+                  </label>
+                  {{ form.soil_type }} {% if form.soil_type.help_text %}
+                  <div class="form-text text-muted small">{{ form.soil_type.help_text }}</div>
+                  {% endif %}
+                </div>
+
+                <!-- Field Area -->
+                <div class="mb-3">
+                  <label for="{{ form.field_area_ha.id_for_label }}" class="form-label fw-medium text-secondary">
+                    📏 Field Area (ha) <small class="text-muted">(Optional)</small>
+                  </label>
+                  {{ form.field_area_ha }} {% if form.field_area_ha.help_text %}
+                  <div class="form-text text-muted small">{{ form.field_area_ha.help_text }}</div>
+                  {% endif %}
+                </div>
+
+                <!-- Elevation -->
+                <div class="mb-3">
+                  <label for="{{ form.elevation.id_for_label }}" class="form-label fw-medium text-secondary">
+                    ⛰️ Elevation (m) <small class="text-muted">(Optional)</small>
+                  </label>
+                  {{ form.elevation }} {% if form.elevation.help_text %}
+                  <div class="form-text text-muted small">{{ form.elevation.help_text }}</div>
+                  {% endif %}
+                </div>
+              </div>
+
+              <!-- Hidden coordinates -->
+              {{ form.latitude }} {{ form.longitude }}
+
+              <!-- Submit Button -->
+              <div class="d-grid mt-4">
+                <button type="submit" class="btn btn-success btn-lg fw-semibold shadow">💾 Save Field & Get Advice</button>
+              </div>
+            </form>
+          </div>
+
+          <!-- Help Section as Card Footer -->
+          <div class="card-footer bg-light border-success">
+            <div class="text-center">
+              <h6 class="text-success fw-semibold mb-2">❓ Need Help?</h6>
+              <div class="row text-center small text-muted">
+                <div class="col-6 mb-1">📍 Click map to set location</div>
+                <div class="col-6 mb-1">🌱 Select your crop</div>
+                <div class="col-6 mb-1">📅 Enter planting date</div>
+                <div class="col-6 mb-1">📋 Optional details help improve advice</div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -130,26 +142,137 @@
 {% endblock %} {% block scripts %}
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
+  // Initialize map
   const map = L.map("map").setView([1.2, 32.3], 7);
-  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png").addTo(map);
   let marker;
+  let currentTileLayer;
 
-  function setLatLon(lat, lng) {
-    document.getElementById("id_latitude").value = lat;
-    document.getElementById("id_longitude").value = lng;
+  // Define basemap options
+  const basemaps = {
+    satellite: {
+      url: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+      options: {
+        attribution: "© Esri | © World Imagery",
+        maxZoom: 19,
+      },
+    },
+    streets: {
+      url: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+      options: {
+        attribution: "© OpenStreetMap contributors",
+        maxZoom: 19,
+      },
+    },
+    terrain: {
+      url: "https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png",
+      options: {
+        attribution: "© OpenTopoMap (CC-BY-SA)",
+        maxZoom: 17,
+      },
+    },
+  };
+
+  // Set initial basemap (satellite as default)
+  function setBasemap(basemapType) {
+    if (currentTileLayer) {
+      map.removeLayer(currentTileLayer);
+    }
+    const basemap = basemaps[basemapType];
+    currentTileLayer = L.tileLayer(basemap.url, basemap.options).addTo(map);
   }
 
-  map.on("click", function (e) {
-    if (marker) map.removeLayer(marker);
-    marker = L.marker(e.latlng).addTo(map);
-    setLatLon(e.latlng.lat, e.latlng.lng);
+  // Initialize with satellite basemap
+  setBasemap("satellite");
+
+  // Handle basemap selection
+  document.querySelectorAll('input[name="basemap"]').forEach((radio) => {
+    radio.addEventListener("change", function () {
+      if (this.checked) {
+        setBasemap(this.value);
+      }
+    });
   });
 
-  map.locate({ setView: true, maxZoom: 13 });
+  // Coordinate setting function
+  function setLatLon(lat, lng) {
+    document.getElementById("id_latitude").value = lat.toFixed(6);
+    document.getElementById("id_longitude").value = lng.toFixed(6);
+  }
+
+  // Enhanced marker styling
+  const customIcon = L.divIcon({
+    className: "custom-marker",
+    html: '<div style="background-color: #198754; width: 20px; height: 20px; border-radius: 50%; border: 3px solid white; box-shadow: 0 2px 6px rgba(0,0,0,0.3);"></div>',
+    iconSize: [20, 20],
+    iconAnchor: [10, 10],
+  });
+
+  // Map click handler
+  map.on("click", function (e) {
+    if (marker) map.removeLayer(marker);
+    marker = L.marker(e.latlng, { icon: customIcon }).addTo(map);
+    setLatLon(e.latlng.lat, e.latlng.lng);
+
+    // Add popup with coordinates
+    marker
+      .bindPopup(
+        `
+      <div class="text-center">
+        <strong class="text-success">📍 Selected Location</strong><br>
+        <small class="text-muted">
+          Lat: ${e.latlng.lat.toFixed(6)}<br>
+          Lng: ${e.latlng.lng.toFixed(6)}
+        </small>
+      </div>
+    `
+      )
+      .openPopup();
+  });
+
+  // Enhanced location detection
+  map.locate({
+    setView: true,
+    maxZoom: 13,
+    enableHighAccuracy: true,
+    timeout: 10000,
+  });
+
   map.on("locationfound", function (e) {
     if (!marker) {
-      marker = L.marker(e.latlng).addTo(map);
+      marker = L.marker(e.latlng, { icon: customIcon }).addTo(map);
       setLatLon(e.latlng.lat, e.latlng.lng);
+
+      // Add popup for current location
+      marker
+        .bindPopup(
+          `
+        <div class="text-center">
+          <strong class="text-success">📍 Your Current Location</strong><br>
+          <small class="text-muted">
+            Accuracy: ±${Math.round(e.accuracy)} meters<br>
+            Click elsewhere to change location
+          </small>
+        </div>
+      `
+        )
+        .openPopup();
+    }
+  });
+
+  map.on("locationerror", function (e) {
+    console.log("Location access denied or unavailable");
+    // Optionally show a user-friendly message
+  });
+
+  // Form validation enhancement
+  document.querySelector("form").addEventListener("submit", function (e) {
+    const lat = document.getElementById("id_latitude").value;
+    const lng = document.getElementById("id_longitude").value;
+
+    if (!lat || !lng) {
+      e.preventDefault();
+      alert("⚠️ Please select a location on the map before submitting.");
+      return false;
     }
   });
 </script>

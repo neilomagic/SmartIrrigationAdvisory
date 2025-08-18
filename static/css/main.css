@@ -1,4 +1,13 @@
-/* Smart Irrigation Advisory - Enhanced Navigation Styles */
+/* Smart Irrigation Advisory - Enhanced Green Theme Styles */
+
+/* Enhanced green color palette */
+:root {
+    --primary-green: #198754;
+    --light-green: #20c997;
+    --dark-green: #146c43;
+    --success-bg: #d1e7dd;
+    --success-border: #badbcc;
+}
 
 /* Improved navigation flow */
 .navbar-brand {
@@ -27,11 +36,12 @@
     color: #6c757d;
 }
 
-/* Card improvements for better flow */
+/* Enhanced card styles for field creation */
 .card {
     border: none;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     transition: all 0.3s ease;
+    border-radius: 12px;
 }
 
 .card:hover {
@@ -42,6 +52,31 @@
 .card-header {
     border-bottom: 1px solid #e9ecef;
     font-weight: 600;
+    border-radius: 12px 12px 0 0 !important;
+}
+
+/* Special styling for field creation page */
+.border-success {
+    border-color: var(--success-border) !important;
+}
+
+.shadow-lg {
+    box-shadow: 0 1rem 3rem rgba(25, 135, 84, 0.175) !important;
+}
+
+.border-2 {
+    border-width: 2px !important;
+}
+
+/* Enhanced map container */
+#map {
+    border-radius: 0 0 8px 8px;
+    border: 2px solid var(--success-border);
+}
+
+/* Custom marker styles */
+.custom-marker {
+    filter: drop-shadow(0 2px 4px rgba(25, 135, 84, 0.4));
 }
 
 /* Button improvements */
@@ -88,16 +123,47 @@
     font-weight: 600;
 }
 
-/* Form improvements */
+/* Enhanced form improvements */
 .form-control {
     border-radius: 8px;
     border: 2px solid #e9ecef;
     transition: all 0.3s ease;
+    font-size: 0.95rem;
 }
 
 .form-control:focus {
-    border-color: #198754;
+    border-color: var(--primary-green);
     box-shadow: 0 0 0 0.2rem rgba(25, 135, 84, 0.25);
+    transform: translateY(-1px);
+}
+
+.form-control:hover {
+    border-color: var(--light-green);
+}
+
+/* Enhanced form labels */
+.form-label {
+    margin-bottom: 0.75rem;
+    font-size: 0.9rem;
+}
+
+.form-text {
+    font-size: 0.8rem;
+    margin-top: 0.5rem;
+}
+
+/* Button group enhancements for basemap selector */
+.btn-group .btn-outline-light:checked,
+.btn-group .btn-outline-light.active {
+    background-color: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.5);
+    color: white;
+}
+
+.btn-group .btn-outline-light:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.3);
+    color: white;
 }
 
 /* Alert improvements */
@@ -149,7 +215,7 @@
     overflow: hidden;
 }
 
-/* Responsive improvements */
+/* Enhanced responsive improvements for field creation */
 @media (max-width: 768px) {
     .navbar-brand {
         font-size: 1.2rem;
@@ -167,6 +233,70 @@
         border-radius: 6px;
         margin-bottom: 0.25rem;
     }
+    
+    /* Mobile adjustments for field creation */
+    .container-fluid {
+        padding-left: 15px !important;
+        padding-right: 15px !important;
+    }
+    
+    .col-lg-7, .col-lg-5 {
+        margin-bottom: 1rem;
+    }
+    
+    #map {
+        height: 400px !important;
+    }
+    
+    .card-header .btn-group {
+        margin-top: 0.5rem;
+        width: 100%;
+    }
+    
+    .card-header .btn-group .btn {
+        flex: 1;
+        font-size: 0.8rem;
+    }
+}
+
+/* Additional field creation page enhancements */
+.field-creation-page {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    min-height: 100vh;
+}
+
+/* Loading state styles */
+.loading-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    border-radius: 8px;
+}
+
+.loading-spinner {
+    width: 2rem;
+    height: 2rem;
+    border: 0.25rem solid var(--success-bg);
+    border-top: 0.25rem solid var(--primary-green);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Enhanced section dividers */
+.border-top {
+    border-top: 2px solid var(--success-bg) !important;
 }
 
 /* Animation for loading states */

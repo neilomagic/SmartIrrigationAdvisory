@@ -37,7 +37,7 @@ class FarmField(models.Model):
     longitude = models.FloatField(_('Longitude'), validators=[
         MinValueValidator(-180.0), MaxValueValidator(180.0)])
     soil_type = models.CharField(
-        choices=SOIL_CHOICES, max_length=20, default="loam")
+        choices=SOIL_CHOICES, max_length=20, default="loam", null=True, blank=True)
     crop_type = models.CharField(
         choices=CROP_CHOICES, max_length=20, default="maize")
     planting_date = models.DateField(_('Planting Date'), default=date.today)
