@@ -281,6 +281,21 @@
         flex: 1;
         font-size: 0.8rem;
     }
+    
+    /* Mobile loading overlay adjustments */
+    .loading-content {
+        padding: 2rem 1.5rem !important;
+        margin: 1rem !important;
+    }
+    
+    .loading-steps {
+        font-size: 0.85rem;
+    }
+    
+    .loading-spinner-large {
+        width: 3rem !important;
+        height: 3rem !important;
+    }
 }
 
 /* Additional field creation page enhancements */
@@ -289,19 +304,30 @@
     min-height: 100vh;
 }
 
-/* Loading state styles */
+/* Enhanced Loading state styles */
 .loading-overlay {
-    position: absolute;
+    position: fixed;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(255, 255, 255, 0.8);
+    background: rgba(255, 255, 255, 0.95);
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 1000;
-    border-radius: 8px;
+    z-index: 9999;
+    backdrop-filter: blur(5px);
+}
+
+.loading-content {
+    text-align: center;
+    background: white;
+    padding: 3rem 2rem;
+    border-radius: 16px;
+    box-shadow: 0 20px 40px rgba(25, 135, 84, 0.15);
+    border: 2px solid var(--success-border);
+    max-width: 400px;
+    width: 90%;
 }
 
 .loading-spinner {
@@ -313,9 +339,109 @@
     animation: spin 1s linear infinite;
 }
 
+.loading-spinner-large {
+    width: 4rem;
+    height: 4rem;
+    border: 0.35rem solid var(--success-bg);
+    border-top: 0.35rem solid var(--primary-green);
+    border-radius: 50%;
+    animation: spin 1.5s linear infinite;
+    margin: 0 auto;
+}
+
+/* Loading steps animation */
+.loading-steps {
+    text-align: left;
+    max-width: 280px;
+    margin: 0 auto;
+}
+
+.loading-steps .step {
+    padding: 0.5rem 0;
+    opacity: 0.3;
+    transition: all 0.3s ease;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+}
+
+.loading-steps .step.active {
+    opacity: 1;
+    color: var(--primary-green);
+    font-weight: 600;
+}
+
+.loading-steps .step.completed {
+    opacity: 0.7;
+    color: var(--dark-green);
+}
+
+.loading-steps .step .step-icon {
+    margin-right: 0.5rem;
+    font-size: 1rem;
+    filter: grayscale(100%);
+    transition: filter 0.3s ease;
+}
+
+.loading-steps .step.active .step-icon,
+.loading-steps .step.completed .step-icon {
+    filter: none;
+}
+
+/* Button loading state */
+.btn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.btn .loading-text {
+    display: none;
+}
+
+.btn.loading .submit-text {
+    display: none;
+}
+
+.btn.loading .loading-text {
+    display: inline;
+}
+
+/* Progress bar enhancements */
+.progress {
+    background-color: var(--success-bg);
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.progress-bar {
+    transition: width 0.8s ease-in-out;
+    background: linear-gradient(90deg, var(--primary-green) 0%, var(--light-green) 100%);
+}
+
 @keyframes spin {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
+}
+
+/* Pulse animation for loading content */
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+.loading-content {
+    animation: fadeInUp 0.5s ease-out;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 /* Enhanced section dividers */

@@ -113,7 +113,13 @@
 
               <!-- Submit Button -->
               <div class="d-grid mt-4">
-                <button type="submit" class="btn btn-success btn-lg fw-semibold shadow">💾 Save Field & Get Advice</button>
+                <button type="submit" id="submitBtn" class="btn btn-success btn-lg fw-semibold shadow">
+                  <span class="submit-text">💾 Save Field & Get Advice</span>
+                  <span class="loading-text d-none">
+                    <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                    Processing...
+                  </span>
+                </button>
               </div>
             </form>
           </div>
@@ -131,6 +137,24 @@
             </div>
           </div>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading Overlay -->
+  <div id="loadingOverlay" class="loading-overlay d-none">
+    <div class="loading-content">
+      <div class="loading-spinner-large mb-4"></div>
+      <h4 class="text-success fw-bold mb-3">Creating Your Field</h4>
+      <div class="progress mb-3" style="height: 8px">
+        <div class="progress-bar bg-success" role="progressbar" style="width: 0%"></div>
+      </div>
+      <p class="loading-status text-muted mb-0">Initializing...</p>
+      <div class="loading-steps mt-3">
+        <div class="step" data-step="1"><span class="step-icon">📍</span> Validating location data</div>
+        <div class="step" data-step="2"><span class="step-icon">🌱</span> Processing field details</div>
+        <div class="step" data-step="3"><span class="step-icon">🛰️</span> Analyzing satellite data</div>
+        <div class="step" data-step="4"><span class="step-icon">💧</span> Generating irrigation advice</div>
       </div>
     </div>
   </div>
@@ -260,14 +284,90 @@
     // Optionally show a user-friendly message
   });
 
-  // Form validation enhancement
+  // Progressive loading functionality
+  function showLoadingOverlay() {
+    const overlay = document.getElementById("loadingOverlay");
+    const progressBar = overlay.querySelector(".progress-bar");
+    const statusText = overlay.querySelector(".loading-status");
+    const steps = overlay.querySelectorAll(".step");
+
+    overlay.classList.remove("d-none");
+
+    // Progressive loading simulation
+    const loadingSteps = [
+      { progress: 20, status: "Validating location data...", step: 1, delay: 800 },
+      { progress: 45, status: "Processing field details...", step: 2, delay: 1200 },
+      { progress: 70, status: "Analyzing satellite data...", step: 3, delay: 1800 },
+      { progress: 95, status: "Generating irrigation advice...", step: 4, delay: 1000 },
+      { progress: 100, status: "Redirecting to advice page...", step: null, delay: 500 },
+    ];
+
+    let currentStepIndex = 0;
+
+    function runNextStep() {
+      if (currentStepIndex < loadingSteps.length) {
+        const currentStep = loadingSteps[currentStepIndex];
+
+        // Update progress bar
+        progressBar.style.width = currentStep.progress + "%";
+
+        // Update status text
+        statusText.textContent = currentStep.status;
+
+        // Update step states
+        if (currentStep.step) {
+          // Mark previous steps as completed
+          steps.forEach((step, index) => {
+            const stepNum = parseInt(step.dataset.step);
+            if (stepNum < currentStep.step) {
+              step.classList.remove("active");
+              step.classList.add("completed");
+            } else if (stepNum === currentStep.step) {
+              step.classList.add("active");
+              step.classList.remove("completed");
+            } else {
+              step.classList.remove("active", "completed");
+            }
+          });
+        }
+
+        currentStepIndex++;
+
+        setTimeout(runNextStep, currentStep.delay);
+      }
+    }
+
+    // Start the loading sequence
+    setTimeout(runNextStep, 300);
+  }
+
+  // Enhanced form validation and submission
   document.querySelector("form").addEventListener("submit", function (e) {
     const lat = document.getElementById("id_latitude").value;
     const lng = document.getElementById("id_longitude").value;
+    const submitBtn = document.getElementById("submitBtn");
 
     if (!lat || !lng) {
       e.preventDefault();
       alert("⚠️ Please select a location on the map before submitting.");
+      return false;
+    }
+
+    // Show loading state
+    submitBtn.classList.add("loading");
+    submitBtn.disabled = true;
+
+    // Show loading overlay
+    showLoadingOverlay();
+
+    // Allow the form to submit normally - the server will handle the redirect
+    return true;
+  });
+
+  // Prevent multiple submissions
+  document.getElementById("submitBtn").addEventListener("click", function (e) {
+    if (this.disabled) {
+      e.preventDefault();
       return false;
     }
   });
