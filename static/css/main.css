@@ -706,6 +706,92 @@
     }
 }
 
+/* Analytics Page Styling */
+.analytics-page {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    min-height: 100vh;
+    padding-bottom: 2rem;
+}
+
+.analytics-page .card {
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.analytics-page .card-header {
+    border-radius: 12px 12px 0 0 !important;
+}
+
+/* Metric icons styling */
+.metric-icon {
+    font-size: 1.5rem;
+    filter: drop-shadow(0 2px 4px rgba(25, 135, 84, 0.2));
+}
+
+/* Metric items styling */
+.metric-item {
+    padding: 0.25rem 0;
+    border-bottom: 1px solid rgba(25, 135, 84, 0.1);
+}
+
+.metric-item:last-child {
+    border-bottom: none;
+}
+
+/* Trend items styling */
+.trend-item {
+    padding: 0.5rem;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+}
+
+.trend-item:hover {
+    background-color: rgba(25, 135, 84, 0.05);
+}
+
+/* Progress bar enhancements for analytics */
+.analytics-page .progress {
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.analytics-page .progress-bar {
+    border-radius: 8px;
+}
+
+/* Button enhancements for analytics */
+.analytics-page .btn-outline-success:hover {
+    background-color: var(--primary-green);
+    border-color: var(--primary-green);
+    color: white;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(25, 135, 84, 0.2);
+}
+
+/* Period filter buttons */
+.analytics-page .btn-group .btn-outline-success.active {
+    background-color: var(--primary-green);
+    border-color: var(--primary-green);
+    color: white;
+    box-shadow: 0 2px 4px rgba(25, 135, 84, 0.3);
+}
+
+/* Responsive adjustments for analytics */
+@media (max-width: 768px) {
+    .analytics-page .metric-icon {
+        font-size: 1.2rem;
+    }
+    
+    .analytics-page .btn-group {
+        width: 100%;
+    }
+    
+    .analytics-page .btn-group .btn {
+        flex: 1;
+        font-size: 0.9rem;
+    }
+}
+
 /* Animation for loading states */
 .loading {
     opacity: 0.6;

@@ -1,19 +1,23 @@
-{% extends "base.html" %} {% block title %}Field Analytics - {{ field.name }}{% endblock %} {% block breadcrumb %}
+{% extends "base.html" %} {% load static %} {% block title %}Field Analytics - {{ field.name }}{% endblock %} {% block breadcrumb %}
 <li class="breadcrumb-item"><a href="{% url 'advisory:field_list' %}">My Fields</a></li>
 <li class="breadcrumb-item active">{{ field.name }} - Analytics</li>
 {% endblock %} {% block content %}
-<div class="container mt-4">
+<div class="container mt-4 analytics-page">
   <!-- Header -->
   <div class="row mb-4">
     <div class="col-12">
       <div class="d-flex justify-content-between align-items-center">
         <div>
-          <h2>📊 Field Analytics - {{ field.name }}</h2>
-          <p class="text-muted">{{ field.crop_type|title }} • {{ field.soil_type|title }} • Planted {{ field.planting_date|date:"M d, Y" }}</p>
+          <h2 class="text-success fw-bold">📊 Field Analytics - {{ field.name }}</h2>
+          <p class="text-muted">
+            <span class="badge bg-success me-2">{{ field.crop_type|title }}</span>
+            <span class="badge bg-light text-success me-2">{{ field.soil_type|title }}</span>
+            <span class="text-muted">📅 Planted {{ field.planting_date|date:"M d, Y" }}</span>
+          </p>
         </div>
-        <div class="btn-group">
+        <div class="btn-group shadow-sm">
           {% for period in period_options %}
-          <a href="?period={{ period }}" class="btn btn-outline-primary {% if period == period_days %}active{% endif %}"> {{ period }} days </a>
+          <a href="?period={{ period }}" class="btn btn-outline-success {% if period == period_days %}active{% endif %}"> {{ period }} days </a>
           {% endfor %}
         </div>
       </div>
@@ -21,112 +25,163 @@
   </div>
 
   <!-- Performance Summary Cards -->
-  <div class="row mb-4">
+  <div class="row mb-4 g-3">
     <div class="col-md-3">
-      <div class="card text-center">
+      <div class="card border-0 shadow-sm text-center h-100">
         <div class="card-body">
-          <h3 class="text-primary">{{ performance.total_advisories }}</h3>
-          <p class="card-text">Total Advisories</p>
+          <div class="metric-icon text-success mb-2">📊</div>
+          <h3 class="text-success fw-bold">{{ performance.total_advisories }}</h3>
+          <p class="card-text fw-medium">Total Advisories</p>
           <small class="text-muted">Last {{ period_days }} days</small>
         </div>
       </div>
     </div>
     <div class="col-md-3">
-      <div class="card text-center">
+      <div class="card border-0 shadow-sm text-center h-100">
         <div class="card-body">
-          <h3 class="text-success">{{ performance.water_use_efficiency|floatformat:1 }}</h3>
-          <p class="card-text">Water Efficiency</p>
+          <div class="metric-icon text-success mb-2">💧</div>
+          <h3 class="text-success fw-bold">{{ performance.water_use_efficiency|floatformat:1 }}</h3>
+          <p class="card-text fw-medium">Water Efficiency</p>
           <small class="text-muted">{{ performance.water_use_efficiency|floatformat:0 }}%</small>
         </div>
       </div>
     </div>
     <div class="col-md-3">
-      <div class="card text-center">
+      <div class="card border-0 shadow-sm text-center h-100">
         <div class="card-body">
-          <h3 class="text-info">${{ performance.cost_savings|floatformat:1 }}</h3>
-          <p class="card-text">Cost Savings</p>
+          <div class="metric-icon text-success mb-2">💰</div>
+          <h3 class="text-success fw-bold">${{ performance.cost_savings|floatformat:1 }}</h3>
+          <p class="card-text fw-medium">Cost Savings</p>
           <small class="text-muted">{{ performance.water_saved|floatformat:1 }}mm saved</small>
         </div>
       </div>
     </div>
     <div class="col-md-3">
-      <div class="card text-center">
+      <div class="card border-0 shadow-sm text-center h-100">
         <div class="card-body">
-          <h3 class="text-warning">{{ performance.avg_confidence|floatformat:1 }}</h3>
-          <p class="card-text">Avg Confidence</p>
+          <div class="metric-icon text-success mb-2">🎯</div>
+          <h3 class="text-success fw-bold">{{ performance.avg_confidence|floatformat:1 }}</h3>
+          <p class="card-text fw-medium">Avg Confidence</p>
           <small class="text-muted">{{ performance.avg_confidence|floatformat:0 }}%</small>
         </div>
       </div>
     </div>
   </div>
 
-  <div class="row">
+  <div class="row g-4">
     <!-- Main Analytics -->
     <div class="col-md-8">
       <!-- Performance Metrics -->
-      <div class="card mb-4">
-        <div class="card-header">
-          <h5 class="mb-0">📈 Performance Metrics</h5>
+      <div class="card border-0 shadow-lg mb-4">
+        <div class="card-header bg-success text-white border-0">
+          <h5 class="mb-0 fw-bold">📈 Performance Metrics</h5>
         </div>
         <div class="card-body">
           <div class="row">
             <div class="col-md-6">
-              <h6>Irrigation Analysis</h6>
-              <p><strong>Irrigation Recommended:</strong> {{ performance.irrigation_recommended_count }} times</p>
-              <p><strong>Irrigation Frequency:</strong> {{ performance.irrigation_frequency|floatformat:1 }}%</p>
-              <p><strong>Total Volume:</strong> {{ performance.total_irrigation_volume }} mm</p>
-              <p><strong>Average Volume:</strong> {{ performance.avg_irrigation_volume }} mm</p>
+              <div class="p-3 bg-light rounded mb-3">
+                <h6 class="text-success fw-bold mb-3">💧 Irrigation Analysis</h6>
+                <div class="metric-item mb-2">
+                  <strong>Irrigation Recommended:</strong>
+                  <span class="text-success">{{ performance.irrigation_recommended_count }} times</span>
+                </div>
+                <div class="metric-item mb-2">
+                  <strong>Irrigation Frequency:</strong>
+                  <span class="text-success">{{ performance.irrigation_frequency|floatformat:1 }}%</span>
+                </div>
+                <div class="metric-item mb-2">
+                  <strong>Total Volume:</strong>
+                  <span class="text-success">{{ performance.total_irrigation_volume }} mm</span>
+                </div>
+                <div class="metric-item">
+                  <strong>Average Volume:</strong>
+                  <span class="text-success">{{ performance.avg_irrigation_volume }} mm</span>
+                </div>
+              </div>
             </div>
             <div class="col-md-6">
-              <h6>Water Balance</h6>
-              <p><strong>Total Rainfall:</strong> {{ performance.total_rainfall }} mm</p>
-              <p><strong>Total Water Need:</strong> {{ performance.total_water_need }} mm</p>
-              <p><strong>Water Saved:</strong> {{ performance.water_saved }} mm</p>
-              <p>
-                <strong>Efficiency Score:</strong>
-                <span
-                  class="badge {% if performance.water_use_efficiency > 0.8 %}bg-success{% elif performance.water_use_efficiency > 0.6 %}bg-warning{% else %}bg-danger{% endif %}"
-                >
-                  {{ performance.water_use_efficiency|floatformat:2 }}
-                </span>
-              </p>
+              <div class="p-3 bg-light rounded mb-3">
+                <h6 class="text-success fw-bold mb-3">🌧️ Water Balance</h6>
+                <div class="metric-item mb-2">
+                  <strong>Total Rainfall:</strong>
+                  <span class="text-info">{{ performance.total_rainfall }} mm</span>
+                </div>
+                <div class="metric-item mb-2">
+                  <strong>Total Water Need:</strong>
+                  <span class="text-warning">{{ performance.total_water_need }} mm</span>
+                </div>
+                <div class="metric-item mb-2">
+                  <strong>Water Saved:</strong>
+                  <span class="text-success">{{ performance.water_saved }} mm</span>
+                </div>
+                <div class="metric-item">
+                  <strong>Efficiency Score:</strong>
+                  <span
+                    class="badge {% if performance.water_use_efficiency > 0.8 %}bg-success{% elif performance.water_use_efficiency > 0.6 %}bg-warning{% else %}bg-danger{% endif %}"
+                  >
+                    {{ performance.water_use_efficiency|floatformat:2 }}
+                  </span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </div>
 
       <!-- Prediction Analysis -->
-      <div class="card mb-4">
-        <div class="card-header">
-          <h5 class="mb-0">🔮 7-Day Prediction</h5>
+      <div class="card border-0 shadow-lg mb-4">
+        <div class="card-header bg-success text-white border-0">
+          <h5 class="mb-0 fw-bold">🔮 7-Day Prediction</h5>
         </div>
         <div class="card-body">
           {% if prediction.prediction == 'insufficient_data' %}
-          <div class="alert alert-info">
-            <h6>Insufficient Data</h6>
-            <p>Need more historical data to make accurate predictions.</p>
+          <div class="alert alert-info border-0 shadow-sm">
+            <h6 class="fw-bold">📊 Insufficient Data</h6>
+            <p class="mb-0">Need more historical data to make accurate predictions.</p>
           </div>
           {% else %}
           <div class="row">
             <div class="col-md-6">
-              <h6>Prediction</h6>
-              <p>
-                <strong>Status:</strong>
-                <span class="badge {% if prediction.prediction == 'irrigation_needed' %}bg-warning{% else %}bg-success{% endif %}">
-                  {% if prediction.prediction == 'irrigation_needed' %}💧 Irrigation Needed{% else %}✅ No Irrigation{% endif %}
-                </span>
-              </p>
-              <p><strong>Confidence:</strong> {{ prediction.confidence|floatformat:1 }}%</p>
-              <p><strong>Probability:</strong> {{ prediction.irrigation_probability|floatformat:1 }}%</p>
-              {% if prediction.predicted_volume > 0 %}
-              <p><strong>Predicted Volume:</strong> {{ prediction.predicted_volume }} mm</p>
-              {% endif %}
+              <div class="p-3 bg-light rounded">
+                <h6 class="text-success fw-bold mb-3">🎯 Prediction</h6>
+                <div class="metric-item mb-2">
+                  <strong>Status:</strong>
+                  <span class="badge {% if prediction.prediction == 'irrigation_needed' %}bg-warning{% else %}bg-success{% endif %}">
+                    {% if prediction.prediction == 'irrigation_needed' %}💧 Irrigation Needed{% else %}✅ No Irrigation{% endif %}
+                  </span>
+                </div>
+                <div class="metric-item mb-2">
+                  <strong>Confidence:</strong>
+                  <span class="text-success">{{ prediction.confidence|floatformat:1 }}%</span>
+                </div>
+                <div class="metric-item mb-2">
+                  <strong>Probability:</strong>
+                  <span class="text-warning">{{ prediction.irrigation_probability|floatformat:1 }}%</span>
+                </div>
+                {% if prediction.predicted_volume > 0 %}
+                <div class="metric-item">
+                  <strong>Predicted Volume:</strong>
+                  <span class="text-success">{{ prediction.predicted_volume }} mm</span>
+                </div>
+                {% endif %}
+              </div>
             </div>
             <div class="col-md-6">
-              <h6>Factors</h6>
-              <p><strong>Crop Stage:</strong> {{ prediction.factors.crop_stage }}</p>
-              <p><strong>Historical Frequency:</strong> {{ prediction.factors.historical_frequency|floatformat:1 }}%</p>
-              <p><strong>Seasonal Adjustment:</strong> {{ prediction.factors.seasonal_adjustment|title }}</p>
+              <div class="p-3 bg-light rounded">
+                <h6 class="text-success fw-bold mb-3">🔍 Factors</h6>
+                <div class="metric-item mb-2">
+                  <strong>Crop Stage:</strong>
+                  <span class="text-success">{{ prediction.factors.crop_stage }}</span>
+                </div>
+                <div class="metric-item mb-2">
+                  <strong>Historical Frequency:</strong>
+                  <span class="text-info">{{ prediction.factors.historical_frequency|floatformat:1 }}%</span>
+                </div>
+                <div class="metric-item">
+                  <strong>Seasonal Adjustment:</strong>
+                  <span class="text-warning">{{ prediction.factors.seasonal_adjustment|title }}</span>
+                </div>
+              </div>
             </div>
           </div>
           {% endif %}
@@ -134,36 +189,46 @@
       </div>
 
       <!-- Data Quality Assessment -->
-      <div class="card">
-        <div class="card-header">
-          <h5 class="mb-0">🔍 Data Quality Assessment</h5>
+      <div class="card border-0 shadow-lg">
+        <div class="card-header bg-success text-white border-0">
+          <h5 class="mb-0 fw-bold">🔍 Data Quality Assessment</h5>
         </div>
         <div class="card-body">
           <div class="row">
             <div class="col-md-6">
-              <h6>Quality Score</h6>
-              <div class="progress mb-3">
-                <div
-                  class="progress-bar {% if performance.data_quality.score > 80 %}bg-success{% elif performance.data_quality.score > 60 %}bg-warning{% else %}bg-danger{% endif %}"
-                  style="width: {{ performance.data_quality.score }}%"
-                >
-                  {{ performance.data_quality.score }}%
+              <div class="p-3 bg-light rounded">
+                <h6 class="text-success fw-bold mb-3">📊 Quality Score</h6>
+                <div class="progress mb-3" style="height: 12px">
+                  <div
+                    class="progress-bar {% if performance.data_quality.score > 80 %}bg-success{% elif performance.data_quality.score > 60 %}bg-warning{% else %}bg-danger{% endif %}"
+                    style="width: {{ performance.data_quality.score }}%"
+                  >
+                    {{ performance.data_quality.score }}%
+                  </div>
+                </div>
+                <div class="metric-item mb-2">
+                  <strong>GEE Data Ratio:</strong>
+                  <span class="text-success">{{ performance.data_quality.gee_ratio|floatformat:1 }}%</span>
+                </div>
+                <div class="metric-item">
+                  <strong>Simulation Ratio:</strong>
+                  <span class="text-info">{{ performance.data_quality.simulation_ratio|floatformat:1 }}%</span>
                 </div>
               </div>
-              <p><strong>GEE Data Ratio:</strong> {{ performance.data_quality.gee_ratio|floatformat:1 }}%</p>
-              <p><strong>Simulation Ratio:</strong> {{ performance.data_quality.simulation_ratio|floatformat:1 }}%</p>
             </div>
             <div class="col-md-6">
-              <h6>Issues Identified</h6>
-              {% if performance.data_quality.issues %}
-              <ul class="list-unstyled">
-                {% for issue in performance.data_quality.issues %}
-                <li class="text-danger">⚠️ {{ issue|title }}</li>
-                {% endfor %}
-              </ul>
-              {% else %}
-              <p class="text-success">✅ No issues detected</p>
-              {% endif %}
+              <div class="p-3 bg-light rounded">
+                <h6 class="text-success fw-bold mb-3">⚠️ Issues Identified</h6>
+                {% if performance.data_quality.issues %}
+                <ul class="list-unstyled">
+                  {% for issue in performance.data_quality.issues %}
+                  <li class="text-danger mb-1">⚠️ {{ issue|title }}</li>
+                  {% endfor %}
+                </ul>
+                {% else %}
+                <p class="text-success mb-0">✅ No issues detected</p>
+                {% endif %}
+              </div>
             </div>
           </div>
         </div>
@@ -173,62 +238,173 @@
     <!-- Sidebar -->
     <div class="col-md-4">
       <!-- Recommendations -->
-      <div class="card mb-3">
-        <div class="card-header">
-          <h6 class="mb-0">💡 Recommendations</h6>
+      <div class="card border-0 shadow-lg mb-3">
+        <div class="card-header bg-success text-white border-0">
+          <h6 class="mb-0 fw-bold">💡 Recommendations</h6>
         </div>
         <div class="card-body">
           {% if performance.recommendations %}
           <ul class="list-unstyled">
             {% for recommendation in performance.recommendations %}
-            <li class="mb-2">• {{ recommendation }}</li>
+            <li class="mb-2 p-2 bg-light rounded"><strong>•</strong> {{ recommendation }}</li>
             {% endfor %}
           </ul>
           {% else %}
-          <p class="text-muted">No specific recommendations at this time.</p>
+          <p class="text-muted mb-0">No specific recommendations at this time.</p>
           {% endif %}
         </div>
       </div>
 
       <!-- Trends -->
       {% if performance.trends %}
-      <div class="card mb-3">
-        <div class="card-header">
-          <h6 class="mb-0">📊 Trends</h6>
+      <div class="card border-0 shadow-lg mb-3">
+        <div class="card-header bg-success text-white border-0">
+          <h6 class="mb-0 fw-bold">📊 Trends</h6>
         </div>
         <div class="card-body">
-          <p>
+          <div class="trend-item mb-3">
             <strong>ET₀ Trend:</strong>
             <span class="badge {% if performance.trends.eto_trend == 'increasing' %}bg-danger{% else %}bg-success{% endif %}">
               {{ performance.trends.eto_trend|title }}
             </span>
-          </p>
-          <p>
+          </div>
+          <div class="trend-item mb-3">
             <strong>Rainfall Trend:</strong>
             <span class="badge {% if performance.trends.rainfall_trend == 'increasing' %}bg-success{% else %}bg-warning{% endif %}">
               {{ performance.trends.rainfall_trend|title }}
             </span>
-          </p>
-          <p>
+          </div>
+          <div class="trend-item mb-0">
             <strong>Irrigation Trend:</strong>
             <span class="badge {% if performance.trends.irrigation_trend == 'increasing' %}bg-warning{% else %}bg-success{% endif %}">
               {{ performance.trends.irrigation_trend|title }}
             </span>
-          </p>
+          </div>
         </div>
       </div>
       {% endif %}
 
       <!-- Quick Actions -->
-      <div class="card">
-        <div class="card-header">
-          <h6 class="mb-0">Quick Actions</h6>
+      <div class="card border-0 shadow-lg">
+        <div class="card-header bg-success text-white border-0">
+          <h6 class="mb-0 fw-bold">⚡ Quick Actions</h6>
         </div>
         <div class="card-body">
-          <a href="{% url 'advisory:get_advice' field.id %}" class="btn btn-success btn-sm w-100 mb-2"> 🔄 Generate New Advisory </a>
-          <a href="{% url 'advisory:advisory_history' field.id %}" class="btn btn-outline-primary btn-sm w-100 mb-2"> 📋 View History </a>
-          <a href="{% url 'advisory:field_map' field.id %}" class="btn btn-outline-secondary btn-sm w-100 mb-2"> 🗺️ Field Map </a>
-          <a href="{% url 'advisory:performance_comparison' %}" class="btn btn-outline-info btn-sm w-100"> 📊 Compare Fields </a>
+          <div class="d-grid gap-2">
+            <a href="{% url 'advisory:get_advice' field.id %}" class="btn btn-success shadow-sm"> 🔄 Generate New Advisory </a>
+            <a href="{% url 'advisory:advisory_history' field.id %}" class="btn btn-outline-success"> 📋 View History </a>
+            <a href="{% url 'advisory:field_map' field.id %}" class="btn btn-outline-success"> 🗺️ Field Map </a>
+            <a href="{% url 'advisory:performance_comparison' %}" class="btn btn-outline-success"> 📊 Compare Fields </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Analytics Terminology Explanation Section -->
+  <div class="row mt-5">
+    <div class="col-12">
+      <div class="card border-0 shadow-lg">
+        <div class="card-header bg-success text-white border-0">
+          <h5 class="mb-0 fw-bold">📚 Understanding Your Analytics</h5>
+          <small class="opacity-75">Key metrics and their calculations explained</small>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <!-- Water Efficiency -->
+            <div class="col-md-6 mb-4">
+              <div class="p-3 bg-light rounded">
+                <h6 class="text-success fw-bold mb-2">💧 Water Use Efficiency</h6>
+                <p class="small mb-2"><strong>What it means:</strong> How effectively water is being used for crop growth.</p>
+                <p class="small mb-2"><strong>How it's calculated:</strong> (Effective water use / Total water applied) × 100</p>
+                <p class="small mb-0">
+                  <strong>Scale:</strong> <span class="badge bg-success">80-100%</span> Excellent | <span class="badge bg-warning">60-79%</span> Good |
+                  <span class="badge bg-danger">Below 60%</span> Needs improvement
+                </p>
+              </div>
+            </div>
+
+            <!-- Irrigation Frequency -->
+            <div class="col-md-6 mb-4">
+              <div class="p-3 bg-light rounded">
+                <h6 class="text-success fw-bold mb-2">🔄 Irrigation Frequency</h6>
+                <p class="small mb-2"><strong>What it means:</strong> Percentage of advisories that recommended irrigation.</p>
+                <p class="small mb-2"><strong>How it's calculated:</strong> (Number of irrigation recommendations / Total advisories) × 100</p>
+                <p class="small mb-0"><strong>Interpretation:</strong> Higher frequency may indicate water stress or low rainfall periods.</p>
+              </div>
+            </div>
+
+            <!-- Data Quality Score -->
+            <div class="col-md-6 mb-4">
+              <div class="p-3 bg-light rounded">
+                <h6 class="text-success fw-bold mb-2">📊 Data Quality Score</h6>
+                <p class="small mb-2"><strong>What it means:</strong> Reliability of the data used for analysis.</p>
+                <p class="small mb-2">
+                  <strong>How it's calculated:</strong> Based on satellite data availability, weather station coverage, and model accuracy.
+                </p>
+                <p class="small mb-0">
+                  <strong>Scale:</strong> <span class="badge bg-success">80-100%</span> High quality | <span class="badge bg-warning">60-79%</span> Moderate |
+                  <span class="badge bg-danger">Below 60%</span> Low quality
+                </p>
+              </div>
+            </div>
+
+            <!-- Prediction Confidence -->
+            <div class="col-md-6 mb-4">
+              <div class="p-3 bg-light rounded">
+                <h6 class="text-success fw-bold mb-2">🎯 Prediction Confidence</h6>
+                <p class="small mb-2"><strong>What it means:</strong> How certain the system is about future irrigation needs.</p>
+                <p class="small mb-2"><strong>How it's calculated:</strong> Based on historical patterns, weather forecasts, and model validation.</p>
+                <p class="small mb-0"><strong>Factors:</strong> Crop stage, seasonal patterns, data quality, and weather forecast reliability.</p>
+              </div>
+            </div>
+
+            <!-- Cost Savings -->
+            <div class="col-md-6 mb-4">
+              <div class="p-3 bg-light rounded">
+                <h6 class="text-success fw-bold mb-2">💰 Cost Savings</h6>
+                <p class="small mb-2"><strong>What it means:</strong> Estimated monetary savings from optimized irrigation.</p>
+                <p class="small mb-2"><strong>How it's calculated:</strong> Water saved × Cost per unit + Energy savings + Labor optimization.</p>
+                <p class="small mb-0"><strong>Includes:</strong> Water costs, energy for pumping, labor time, and potential yield improvements.</p>
+              </div>
+            </div>
+
+            <!-- Trends Analysis -->
+            <div class="col-md-6 mb-4">
+              <div class="p-3 bg-light rounded">
+                <h6 class="text-success fw-bold mb-2">📈 Trends Analysis</h6>
+                <p class="small mb-2"><strong>What it means:</strong> Direction of change in key parameters over time.</p>
+                <p class="small mb-2"><strong>How it's calculated:</strong> Statistical analysis of historical data using regression and moving averages.</p>
+                <p class="small mb-0"><strong>Parameters:</strong> ET₀ (evapotranspiration), rainfall patterns, and irrigation requirements.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Data Sources Summary -->
+          <div class="mt-4 p-3 bg-success bg-opacity-10 rounded">
+            <h6 class="text-success fw-bold mb-2">🛰️ Data Integration Process</h6>
+            <p class="small mb-2">Our analytics combine multiple data sources for comprehensive field analysis:</p>
+            <div class="row small text-muted">
+              <div class="col-md-4">
+                <ul class="mb-0">
+                  <li><strong>Satellite Data:</strong> Google Earth Engine for vegetation and soil moisture indices</li>
+                  <li><strong>Weather Data:</strong> Real-time and forecast meteorological data</li>
+                </ul>
+              </div>
+              <div class="col-md-4">
+                <ul class="mb-0">
+                  <li><strong>Crop Models:</strong> FAO-56 evapotranspiration calculations</li>
+                  <li><strong>Historical Analysis:</strong> Pattern recognition and trend analysis</li>
+                </ul>
+              </div>
+              <div class="col-md-4">
+                <ul class="mb-0">
+                  <li><strong>Machine Learning:</strong> Predictive models for irrigation optimization</li>
+                  <li><strong>Quality Control:</strong> Data validation and uncertainty quantification</li>
+                </ul>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
