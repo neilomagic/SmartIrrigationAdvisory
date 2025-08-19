@@ -1,12 +1,12 @@
 {% extends "base.html" %} {% block title %}Advisory History{% endblock %} {% block content %}
-<div class="container mt-4">
+<div class="container mt-4 advice-page">
   <div class="row">
     <div class="col-md-8">
       <!-- Advisory History Table -->
-      <div class="card">
-        <div class="card-header d-flex justify-content-between align-items-center">
-          <h5 class="mb-0">📋 Advisory History - {{ field.name }}</h5>
-          <span class="badge bg-primary">{{ field.crop_type|title }}</span>
+      <div class="card border-0 shadow-lg">
+        <div class="card-header bg-success text-white border-0 d-flex justify-content-between align-items-center">
+          <h5 class="mb-0 fw-bold">📋 Advisory History - {{ field.name }}</h5>
+          <span class="badge bg-light text-success">{{ field.crop_type|title }}</span>
         </div>
         <div class="card-body">
           {% if advisories %}
@@ -64,7 +64,7 @@
           {% else %}
           <div class="text-center py-4">
             <p class="text-muted">No advisories yet for this field.</p>
-            <a href="{% url 'advisory:get_advice' field.id %}" class="btn btn-primary"> Generate First Advisory </a>
+            <a href="{% url 'advisory:get_advice' field.id %}" class="btn btn-success"> Generate First Advisory </a>
           </div>
           {% endif %}
         </div>
@@ -74,9 +74,9 @@
     <!-- Summary Sidebar -->
     <div class="col-md-4">
       <!-- Field Information -->
-      <div class="card mb-3">
-        <div class="card-header">
-          <h6 class="mb-0">Field Information</h6>
+      <div class="card mb-3 border-0 shadow-lg">
+        <div class="card-header bg-success text-white border-0">
+          <h6 class="mb-0 fw-bold">Field Information</h6>
         </div>
         <div class="card-body">
           <p><strong>Name:</strong> {{ field.name }}</p>
@@ -91,9 +91,9 @@
 
       <!-- Summary Statistics -->
       {% if summary %}
-      <div class="card mb-3">
-        <div class="card-header">
-          <h6 class="mb-0">Summary Statistics</h6>
+      <div class="card mb-3 border-0 shadow-lg">
+        <div class="card-header bg-success text-white border-0">
+          <h6 class="mb-0 fw-bold">Summary Statistics</h6>
         </div>
         <div class="card-body">
           <div class="row text-center">
@@ -129,14 +129,14 @@
       {% endif %}
 
       <!-- Quick Actions -->
-      <div class="card">
-        <div class="card-header">
-          <h6 class="mb-0">Quick Actions</h6>
+      <div class="card border-0 shadow-lg">
+        <div class="card-header bg-success text-white border-0">
+          <h6 class="mb-0 fw-bold">Quick Actions</h6>
         </div>
         <div class="card-body">
           <a href="{% url 'advisory:get_advice' field.id %}" class="btn btn-success btn-sm w-100 mb-2"> 🔄 Generate New Advisory </a>
-          <a href="{% url 'advisory:field_map' field.id %}" class="btn btn-outline-secondary btn-sm w-100 mb-2"> 🗺️ Field Map </a>
-          <a href="{% url 'advisory:field_list' %}" class="btn btn-outline-primary btn-sm w-100"> ← Back to Fields </a>
+          <a href="{% url 'advisory:field_map' field.id %}" class="btn btn-outline-success btn-sm w-100 mb-2"> 🗺️ Field Map </a>
+          <a href="{% url 'advisory:field_list' %}" class="btn btn-outline-success btn-sm w-100"> ← Back to Fields </a>
         </div>
       </div>
     </div>

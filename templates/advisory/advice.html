@@ -2,12 +2,12 @@
 <li class="breadcrumb-item"><a href="{% url 'advisory:field_list' %}">My Fields</a></li>
 <li class="breadcrumb-item active">{{ field.name }} - Advice</li>
 {% endblock %} {% block content %}
-<div class="container mt-4">
+<div class="container mt-4 advice-page">
   {% if error %}
-  <div class="alert alert-danger">
+  <div class="alert alert-danger border-0 shadow-sm">
     <h5>⚠️ Error Generating Advice</h5>
     <p>{{ error }}</p>
-    <a href="{% url 'advisory:field_list' %}" class="btn btn-primary">Back to Fields</a>
+    <a href="{% url 'advisory:field_list' %}" class="btn btn-success">Back to Fields</a>
   </div>
   {% else %}
   <!-- Header -->
@@ -30,41 +30,43 @@
   <div class="row">
     <!-- Main Advice Card -->
     <div class="col-md-8">
-      <div class="card">
-        <div class="card-header bg-primary text-white">
-          <h5 class="mb-0">{% if recommendation.irrigation_needed %} 💧 Irrigation Recommended {% else %} ✅ No Irrigation Needed {% endif %}</h5>
+      <div class="card border-0 shadow-lg">
+        <div class="card-header bg-success text-white border-0">
+          <h5 class="mb-0 fw-bold">{% if recommendation.irrigation_needed %} 💧 Irrigation Recommended {% else %} ✅ No Irrigation Needed {% endif %}</h5>
         </div>
         <div class="card-body">
           <!-- Recommendation Message -->
-          <div class="alert {% if recommendation.irrigation_needed %}alert-warning{% else %}alert-success{% endif %}">
-            <h6 class="alert-heading">{% if recommendation.irrigation_needed %} 🌱 Irrigation Required {% else %} 🌿 Sufficient Water Available {% endif %}</h6>
+          <div class="alert {% if recommendation.irrigation_needed %}alert-warning{% else %}alert-success{% endif %} border-0 shadow-sm">
+            <h6 class="alert-heading fw-bold">
+              {% if recommendation.irrigation_needed %} 🌱 Irrigation Required {% else %} 🌿 Sufficient Water Available {% endif %}
+            </h6>
             <p class="mb-0">{{ recommendation.recommendation_message }}</p>
           </div>
 
           <!-- Key Metrics -->
           <div class="row mb-3">
             <div class="col-md-3">
-              <div class="text-center">
-                <h4 class="text-primary">{{ eto|floatformat:1 }}</h4>
-                <small class="text-muted">ET₀ (mm/day)</small>
+              <div class="text-center p-3 bg-light rounded shadow-sm">
+                <h4 class="text-success fw-bold">{{ eto|floatformat:1 }}</h4>
+                <small class="text-muted fw-medium">ET₀ (mm/day)</small>
               </div>
             </div>
             <div class="col-md-3">
-              <div class="text-center">
-                <h4 class="text-info">{{ rain|floatformat:1 }}</h4>
-                <small class="text-muted">Rainfall (mm/week)</small>
+              <div class="text-center p-3 bg-light rounded shadow-sm">
+                <h4 class="text-info fw-bold">{{ rain|floatformat:1 }}</h4>
+                <small class="text-muted fw-medium">Rainfall (mm/week)</small>
               </div>
             </div>
             <div class="col-md-3">
-              <div class="text-center">
-                <h4 class="text-success">{{ soil_moisture|floatformat:2 }}</h4>
-                <small class="text-muted">Soil Moisture (NDMI)</small>
+              <div class="text-center p-3 bg-light rounded shadow-sm">
+                <h4 class="text-success fw-bold">{{ soil_moisture|floatformat:2 }}</h4>
+                <small class="text-muted fw-medium">Soil Moisture (NDMI)</small>
               </div>
             </div>
             <div class="col-md-3">
-              <div class="text-center">
-                <h4 class="text-warning">{{ recommendation.irrigation_volume|floatformat:1 }}</h4>
-                <small class="text-muted">Irrigation (mm)</small>
+              <div class="text-center p-3 bg-light rounded shadow-sm">
+                <h4 class="text-warning fw-bold">{{ recommendation.irrigation_volume|floatformat:1 }}</h4>
+                <small class="text-muted fw-medium">Irrigation (mm)</small>
               </div>
             </div>
           </div>
@@ -72,50 +74,56 @@
           <!-- Detailed Information -->
           <div class="row">
             <div class="col-md-6">
-              <h6>🌾 Crop Information</h6>
-              <ul class="list-unstyled">
-                <li><strong>Crop:</strong> {{ field.crop_type|title }}</li>
-                <li><strong>Stage:</strong> {{ stage }}</li>
-                <li><strong>Crop Coefficient (Kc):</strong> {{ kc|floatformat:2 }}</li>
-                <li><strong>Planted:</strong> {{ field.planting_date|date:"M d, Y" }}</li>
-              </ul>
+              <div class="p-3 bg-light rounded shadow-sm">
+                <h6 class="text-success fw-bold mb-3">🌾 Crop Information</h6>
+                <ul class="list-unstyled mb-0">
+                  <li class="mb-2"><strong>Crop:</strong> <span class="text-muted">{{ field.crop_type|title }}</span></li>
+                  <li class="mb-2"><strong>Stage:</strong> <span class="text-muted">{{ stage }}</span></li>
+                  <li class="mb-2"><strong>Crop Coefficient (Kc):</strong> <span class="text-muted">{{ kc|floatformat:2 }}</span></li>
+                  <li><strong>Planted:</strong> <span class="text-muted">{{ field.planting_date|date:"M d, Y" }}</span></li>
+                </ul>
+              </div>
             </div>
             <div class="col-md-6">
-              <h6>🌍 Field Conditions</h6>
-              <ul class="list-unstyled">
-                <li><strong>Soil Type:</strong> {{ field.soil_type|title }}</li>
-                {% if field.field_area_ha %}
-                <li><strong>Area:</strong> {{ field.field_area_ha }} ha</li>
-                {% endif %} {% if field.elevation %}
-                <li><strong>Elevation:</strong> {{ field.elevation }}m</li>
-                {% endif %}
-                <li><strong>Location:</strong> {{ field.latitude|floatformat:4 }}, {{ field.longitude|floatformat:4 }}</li>
-              </ul>
+              <div class="p-3 bg-light rounded shadow-sm">
+                <h6 class="text-success fw-bold mb-3">🌍 Field Conditions</h6>
+                <ul class="list-unstyled mb-0">
+                  <li class="mb-2"><strong>Soil Type:</strong> <span class="text-muted">{{ field.soil_type|title }}</span></li>
+                  {% if field.field_area_ha %}
+                  <li class="mb-2"><strong>Area:</strong> <span class="text-muted">{{ field.field_area_ha }} ha</span></li>
+                  {% endif %} {% if field.elevation %}
+                  <li class="mb-2"><strong>Elevation:</strong> <span class="text-muted">{{ field.elevation }}m</span></li>
+                  {% endif %}
+                  <li><strong>Location:</strong> <span class="text-muted">{{ field.latitude|floatformat:4 }}, {{ field.longitude|floatformat:4 }}</span></li>
+                </ul>
+              </div>
             </div>
           </div>
 
           <!-- Risk Assessment -->
-          <div class="mt-3">
-            <h6>⚠️ Risk Assessment</h6>
-            <div class="row">
-              <div class="col-md-6">
-                <div class="d-flex justify-content-between">
-                  <span>Water Stress:</span>
-                  <span
-                    class="badge {% if recommendation.water_stress_index > 0.7 %}bg-danger{% elif recommendation.water_stress_index > 0.4 %}bg-warning{% else %}bg-success{% endif %}"
-                  >
-                    {{ recommendation.water_stress_index|floatformat:2 }}
-                  </span>
+          <div class="mt-4">
+            <div class="p-3 bg-light rounded shadow-sm">
+              <h6 class="text-success fw-bold mb-3">⚠️ Risk Assessment</h6>
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="d-flex justify-content-between align-items-center p-2 bg-white rounded mb-2">
+                    <span class="fw-medium">Water Stress:</span>
+                    <span
+                      class="badge {% if recommendation.water_stress_index > 0.7 %}bg-danger{% elif recommendation.water_stress_index > 0.4 %}bg-warning{% else %}bg-success{% endif %}"
+                    >
+                      {{ recommendation.water_stress_index|floatformat:2 }}
+                    </span>
+                  </div>
                 </div>
-              </div>
-              <div class="col-md-6">
-                <div class="d-flex justify-content-between">
-                  <span>Drought Risk:</span>
-                  <span
-                    class="badge {% if recommendation.drought_risk > 0.7 %}bg-danger{% elif recommendation.drought_risk > 0.4 %}bg-warning{% else %}bg-success{% endif %}"
-                  >
-                    {{ recommendation.drought_risk|floatformat:2 }}
-                  </span>
+                <div class="col-md-6">
+                  <div class="d-flex justify-content-between align-items-center p-2 bg-white rounded mb-2">
+                    <span class="fw-medium">Drought Risk:</span>
+                    <span
+                      class="badge {% if recommendation.drought_risk > 0.7 %}bg-danger{% elif recommendation.drought_risk > 0.4 %}bg-warning{% else %}bg-success{% endif %}"
+                    >
+                      {{ recommendation.drought_risk|floatformat:2 }}
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -127,9 +135,9 @@
     <!-- Sidebar -->
     <div class="col-md-4">
       <!-- Data Quality Card -->
-      <div class="card mb-3">
-        <div class="card-header">
-          <h6 class="mb-0">📊 Data Quality</h6>
+      <div class="card mb-3 border-0 shadow-lg">
+        <div class="card-header bg-success text-white border-0">
+          <h6 class="mb-0 fw-bold">📊 Data Quality</h6>
         </div>
         <div class="card-body">
           <div class="mb-2">
@@ -163,9 +171,9 @@
       </div>
 
       <!-- Weather Forecast -->
-      <div class="card mb-3">
-        <div class="card-header">
-          <h6 class="mb-0">🌤️ Weather Forecast</h6>
+      <div class="card mb-3 border-0 shadow-lg">
+        <div class="card-header bg-success text-white border-0">
+          <h6 class="mb-0 fw-bold">🌤️ Weather Forecast</h6>
         </div>
         <div class="card-body">
           <div class="d-flex justify-content-between mb-2">
@@ -184,16 +192,16 @@
       </div>
 
       <!-- Actions -->
-      <div class="card">
-        <div class="card-header">
-          <h6 class="mb-0">⚡ Quick Actions</h6>
+      <div class="card border-0 shadow-lg">
+        <div class="card-header bg-success text-white border-0">
+          <h6 class="mb-0 fw-bold">⚡ Quick Actions</h6>
         </div>
         <div class="card-body">
           <div class="d-grid gap-2">
-            <a href="{% url 'advisory:field_analytics' field.id %}" class="btn btn-outline-primary btn-sm"> 📊 View Analytics </a>
-            <a href="{% url 'advisory:advisory_history' field.id %}" class="btn btn-outline-info btn-sm"> 📋 Advisory History </a>
-            <a href="{% url 'advisory:field_map' field.id %}" class="btn btn-outline-secondary btn-sm"> 🗺️ Field Map </a>
-            <a href="{% url 'advisory:field_list' %}" class="btn btn-outline-dark btn-sm"> ← Back to Fields </a>
+            <a href="{% url 'advisory:field_analytics' field.id %}" class="btn btn-outline-success btn-sm"> 📊 View Analytics </a>
+            <a href="{% url 'advisory:advisory_history' field.id %}" class="btn btn-outline-success btn-sm"> 📋 Advisory History </a>
+            <a href="{% url 'advisory:field_map' field.id %}" class="btn btn-outline-success btn-sm"> 🗺️ Field Map </a>
+            <a href="{% url 'advisory:field_list' %}" class="btn btn-success btn-sm"> ← Back to Fields </a>
           </div>
         </div>
       </div>
@@ -203,42 +211,202 @@
   <!-- EO Data Sources Info -->
   <div class="row mt-4">
     <div class="col-12">
-      <div class="card">
-        <div class="card-header">
-          <h6 class="mb-0">🌍 Earth Observation Data Sources</h6>
+      <div class="card border-0 shadow-lg">
+        <div class="card-header bg-success text-white border-0">
+          <h6 class="mb-0 fw-bold">🌍 Earth Observation Data Sources</h6>
         </div>
         <div class="card-body">
           <div class="row">
             <div class="col-md-3">
-              <div class="text-center">
-                <h6>🌧️ Rainfall</h6>
+              <div class="text-center p-3 bg-light rounded">
+                <h6 class="text-success">🌧️ Rainfall</h6>
                 <small class="text-muted">CHIRPS Dataset</small>
                 <br />
-                <span class="badge bg-info">UCSB-CHG/CHIRPS/DAILY</span>
+                <span class="badge bg-success mt-2">UCSB-CHG/CHIRPS/DAILY</span>
               </div>
             </div>
             <div class="col-md-3">
-              <div class="text-center">
-                <h6>☀️ Evapotranspiration</h6>
+              <div class="text-center p-3 bg-light rounded">
+                <h6 class="text-success">☀️ Evapotranspiration</h6>
                 <small class="text-muted">ERA5 Dataset</small>
                 <br />
-                <span class="badge bg-info">ECMWF/ERA5_LAND/DAILY_AGGR</span>
+                <span class="badge bg-success mt-2">ECMWF/ERA5_LAND/DAILY_AGGR</span>
               </div>
             </div>
             <div class="col-md-3">
-              <div class="text-center">
-                <h6>🌱 Soil Moisture</h6>
+              <div class="text-center p-3 bg-light rounded">
+                <h6 class="text-success">🌱 Soil Moisture</h6>
                 <small class="text-muted">Sentinel-2 NDMI</small>
                 <br />
-                <span class="badge bg-info">COPERNICUS/S2_SR</span>
+                <span class="badge bg-success mt-2">COPERNICUS/S2_SR</span>
               </div>
             </div>
             <div class="col-md-3">
-              <div class="text-center">
-                <h6>🌤️ Weather Forecast</h6>
+              <div class="text-center p-3 bg-light rounded">
+                <h6 class="text-success">🌤️ Weather Forecast</h6>
                 <small class="text-muted">GFS Dataset</small>
                 <br />
-                <span class="badge bg-info">NOAA/GFS0P25</span>
+                <span class="badge bg-success mt-2">NOAA/GFS0P25</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Key Terms Explanation Section -->
+  <div class="row mt-5">
+    <div class="col-12">
+      <div class="card border-0 shadow-lg">
+        <div class="card-header bg-success text-white border-0">
+          <h5 class="mb-0 fw-bold">📚 Understanding Your Irrigation Advice</h5>
+          <small class="opacity-75">Key terms and how they're calculated</small>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <!-- Confidence Score -->
+            <div class="col-lg-6 mb-4">
+              <div class="p-3 bg-light rounded shadow-sm h-100">
+                <h6 class="text-success fw-bold mb-2">🎯 Confidence Score</h6>
+                <p class="mb-2 small">
+                  <strong>What it means:</strong> A measure of how reliable our irrigation recommendation is, expressed as a percentage from 0-100%.
+                </p>
+                <p class="mb-2 small">
+                  <strong>How it's calculated:</strong> Based on data quality, weather forecast accuracy, satellite image clarity, and crop model validation.
+                </p>
+                <div class="small text-muted">
+                  <strong>Interpretation:</strong>
+                  <ul class="mb-0 ps-3">
+                    <li>80-100%: High confidence - follow recommendations closely</li>
+                    <li>60-79%: Good confidence - recommendations are reliable</li>
+                    <li>40-59%: Moderate confidence - use with field observations</li>
+                    <li>Below 40%: Low confidence - verify with local conditions</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            <!-- Water Stress -->
+            <div class="col-lg-6 mb-4">
+              <div class="p-3 bg-light rounded shadow-sm h-100">
+                <h6 class="text-success fw-bold mb-2">💧 Water Stress</h6>
+                <p class="mb-2 small"><strong>What it means:</strong> Indicates how much your crops are struggling due to insufficient water availability.</p>
+                <p class="mb-2 small">
+                  <strong>How it's calculated:</strong> Ratio of actual crop water consumption to optimal water needs, considering soil moisture and rainfall.
+                </p>
+                <div class="small text-muted">
+                  <strong>Scale:</strong>
+                  <ul class="mb-0 ps-3">
+                    <li>0.0-0.3: Low stress - crops are well-watered</li>
+                    <li>0.4-0.7: Moderate stress - irrigation may be beneficial</li>
+                    <li>0.8-1.0: High stress - irrigation urgently needed</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            <!-- Drought Risk -->
+            <div class="col-lg-6 mb-4">
+              <div class="p-3 bg-light rounded shadow-sm h-100">
+                <h6 class="text-success fw-bold mb-2">🌵 Drought Risk</h6>
+                <p class="mb-2 small"><strong>What it means:</strong> Probability of drought conditions affecting your field in the coming weeks.</p>
+                <p class="mb-2 small">
+                  <strong>How it's calculated:</strong> Combines rainfall forecasts, soil moisture trends, and historical drought patterns for your location.
+                </p>
+                <div class="small text-muted">
+                  <strong>Risk Levels:</strong>
+                  <ul class="mb-0 ps-3">
+                    <li>0.0-0.3: Low risk - normal precipitation expected</li>
+                    <li>0.4-0.7: Moderate risk - monitor conditions closely</li>
+                    <li>0.8-1.0: High risk - prepare drought management strategies</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            <!-- Crop Coefficient -->
+            <div class="col-lg-6 mb-4">
+              <div class="p-3 bg-light rounded shadow-sm h-100">
+                <h6 class="text-success fw-bold mb-2">🌱 Crop Coefficient (Kc)</h6>
+                <p class="mb-2 small">
+                  <strong>What it means:</strong> A factor that relates your crop's water needs to the reference evapotranspiration (ET₀).
+                </p>
+                <p class="mb-2 small">
+                  <strong>How it's calculated:</strong> Based on crop type, growth stage, and development phase using FAO-56 methodology.
+                </p>
+                <div class="small text-muted">
+                  <strong>Typical Values:</strong>
+                  <ul class="mb-0 ps-3">
+                    <li>0.3-0.7: Initial/establishment stage</li>
+                    <li>0.7-1.2: Development and mid-season</li>
+                    <li>0.6-1.0: Late season and maturity</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            <!-- ET₀ (Reference Evapotranspiration) -->
+            <div class="col-lg-6 mb-4">
+              <div class="p-3 bg-light rounded shadow-sm h-100">
+                <h6 class="text-success fw-bold mb-2">☀️ Reference Evapotranspiration (ET₀)</h6>
+                <p class="mb-2 small">
+                  <strong>What it means:</strong> The amount of water that would evaporate from soil and transpire from a reference grass crop (mm/day).
+                </p>
+                <p class="mb-2 small">
+                  <strong>How it's calculated:</strong> Using the Penman-Monteith equation with temperature, humidity, wind speed, and solar radiation data.
+                </p>
+                <div class="small text-muted">
+                  <strong>Typical Values:</strong>
+                  <ul class="mb-0 ps-3">
+                    <li>2-4 mm/day: Cool, humid conditions</li>
+                    <li>4-6 mm/day: Moderate temperature, average humidity</li>
+                    <li>6-8+ mm/day: Hot, dry, windy conditions</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            <!-- Soil Moisture (NDMI) -->
+            <div class="col-lg-6 mb-4">
+              <div class="p-3 bg-light rounded shadow-sm h-100">
+                <h6 class="text-success fw-bold mb-2">🌍 Soil Moisture (NDMI)</h6>
+                <p class="mb-2 small">
+                  <strong>What it means:</strong> Normalized Difference Moisture Index - indicates soil and vegetation water content from satellite imagery.
+                </p>
+                <p class="mb-2 small">
+                  <strong>How it's calculated:</strong> Using near-infrared and shortwave infrared bands from Sentinel-2 satellite: (NIR - SWIR) / (NIR + SWIR).
+                </p>
+                <div class="small text-muted">
+                  <strong>Index Values:</strong>
+                  <ul class="mb-0 ps-3">
+                    <li>0.6-1.0: Very high moisture content</li>
+                    <li>0.2-0.6: Moderate to high moisture</li>
+                    <li>0.0-0.2: Low moisture content</li>
+                    <li>Below 0.0: Very dry conditions</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-4 p-3 bg-success bg-opacity-10 rounded">
+            <h6 class="text-success fw-bold mb-2">🔬 Data Integration Process</h6>
+            <p class="small mb-2">Our recommendations combine multiple Earth observation datasets and agronomic models:</p>
+            <div class="row small text-muted">
+              <div class="col-md-6">
+                <ul class="mb-0">
+                  <li><strong>Weather Analysis:</strong> Real-time and forecast data from multiple sources</li>
+                  <li><strong>Soil Assessment:</strong> Satellite-derived moisture and field characteristics</li>
+                  <li><strong>Crop Modeling:</strong> FAO-56 dual crop coefficient approach</li>
+                </ul>
+              </div>
+              <div class="col-md-6">
+                <ul class="mb-0">
+                  <li><strong>Risk Analysis:</strong> Statistical models for drought and stress assessment</li>
+                  <li><strong>Quality Control:</strong> Data validation and uncertainty quantification</li>
+                  <li><strong>Local Calibration:</strong> Adjustments based on field-specific conditions</li>
+                </ul>
               </div>
             </div>
           </div>

@@ -449,6 +449,161 @@
     border-top: 2px solid var(--success-bg) !important;
 }
 
+/* Advice page specific styling */
+.advice-page {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    min-height: 100vh;
+    padding-bottom: 2rem;
+}
+
+.advice-page .card {
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.advice-page .card-header {
+    border-radius: 12px 12px 0 0 !important;
+}
+
+/* Key metrics styling */
+.advice-page .row .col-md-3 > div {
+    transition: transform 0.3s ease;
+}
+
+.advice-page .row .col-md-3 > div:hover {
+    transform: translateY(-2px);
+}
+
+/* Explanation cards */
+.advice-page .explanation-card {
+    border-left: 4px solid var(--primary-green);
+    transition: all 0.3s ease;
+}
+
+.advice-page .explanation-card:hover {
+    border-left-color: var(--dark-green);
+    transform: translateY(-1px);
+}
+
+/* Progress bars in sidebar */
+.advice-page .progress {
+    height: 8px !important;
+    border-radius: 4px;
+}
+
+.advice-page .progress-bar {
+    border-radius: 4px;
+}
+
+/* Badge styling consistency */
+.advice-page .badge {
+    font-weight: 500;
+    padding: 0.5em 0.75em;
+}
+
+/* Enhanced alert styling */
+.advice-page .alert {
+    border-radius: 10px;
+    border-width: 0;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Hover effects for action buttons */
+.advice-page .btn {
+    transition: all 0.3s ease;
+}
+
+.advice-page .btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+/* Fields page specific styling */
+.fields-page {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    min-height: 100vh;
+    padding-bottom: 2rem;
+}
+
+.fields-page .card {
+    border-radius: 12px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.fields-page .card-header {
+    border-radius: 12px 12px 0 0 !important;
+}
+
+/* Hover lift effect for field cards */
+.hover-lift {
+    transition: all 0.3s ease;
+}
+
+.hover-lift:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(25, 135, 84, 0.15) !important;
+}
+
+/* Field info items */
+.field-info-item {
+    padding: 0.5rem 0;
+}
+
+.field-info-item small {
+    display: block;
+    margin-bottom: 0.25rem;
+}
+
+/* Summary metrics */
+.summary-metric {
+    padding: 1rem;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.summary-metric:hover {
+    background-color: rgba(25, 135, 84, 0.05);
+    transform: scale(1.05);
+}
+
+/* Empty state styling */
+.empty-state {
+    max-width: 500px;
+    margin: 0 auto;
+    border: 2px dashed var(--success-border);
+}
+
+/* Enhanced badge styling for fields */
+.fields-page .badge {
+    font-weight: 600;
+    font-size: 0.8rem;
+    padding: 0.5rem 0.75rem;
+}
+
+/* Button group enhancements */
+.fields-page .btn-group .btn {
+    border-color: var(--primary-green);
+    transition: all 0.3s ease;
+}
+
+.fields-page .btn-group .btn:hover {
+    background-color: var(--primary-green);
+    color: white;
+    transform: translateY(-1px);
+}
+
+/* Card footer enhancements */
+.fields-page .card-footer {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+}
+
+/* Status border enhancement */
+.border-success {
+    border-color: var(--success-border) !important;
+    border-width: 2px !important;
+}
+
 /* Animation for loading states */
 .loading {
     opacity: 0.6;

@@ -1,16 +1,16 @@
 {% extends "base.html" %} {% block title %}My Fields{% endblock %} {% block breadcrumb %}
 <li class="breadcrumb-item active">My Fields</li>
 {% endblock %} {% block content %}
-<div class="container mt-4">
+<div class="container mt-4 fields-page">
   <!-- Header -->
   <div class="row mb-4">
     <div class="col-12">
       <div class="d-flex justify-content-between align-items-center">
         <div>
-          <h2>🌾 My Fields</h2>
+          <h2 class="text-success fw-bold">🌾 My Fields</h2>
           <p class="text-muted">Manage your fields and get irrigation advice</p>
         </div>
-        <a href="{% url 'advisory:create_field' %}" class="btn btn-primary"> ➕ Add New Field </a>
+        <a href="{% url 'advisory:create_field' %}" class="btn btn-success shadow"> ➕ Add New Field </a>
       </div>
     </div>
   </div>
@@ -20,53 +20,65 @@
   <div class="row">
     {% for field in fields %}
     <div class="col-md-6 col-lg-4 mb-4">
-      <div class="card h-100">
-        <div class="card-header d-flex justify-content-between align-items-center">
-          <h6 class="mb-0">{{ field.name }}</h6>
-          <span class="badge bg-primary">{{ field.crop_type|title }}</span>
+      <div class="card h-100 border-0 shadow-sm hover-lift">
+        <div class="card-header bg-success text-white border-0 d-flex justify-content-between align-items-center">
+          <h6 class="mb-0 fw-bold">{{ field.name }}</h6>
+          <span class="badge bg-light text-success">{{ field.crop_type|title }}</span>
         </div>
         <div class="card-body">
-          <div class="row mb-2">
+          <div class="row mb-3">
             <div class="col-6">
-              <small class="text-muted">Planted</small>
-              <div>{{ field.planting_date|date:"M d, Y" }}</div>
+              <div class="field-info-item">
+                <small class="text-muted fw-medium">📅 Planted</small>
+                <div class="fw-medium">{{ field.planting_date|date:"M d, Y" }}</div>
+              </div>
             </div>
             <div class="col-6">
-              <small class="text-muted">Soil</small>
-              <div>{{ field.soil_type|title }}</div>
+              <div class="field-info-item">
+                <small class="text-muted fw-medium">🌍 Soil</small>
+                <div class="fw-medium">{{ field.soil_type|title }}</div>
+              </div>
             </div>
           </div>
-          {% if field.field_area_ha %}
-          <div class="mb-2">
-            <small class="text-muted">Area</small>
-            <div>{{ field.field_area_ha }} ha</div>
-          </div>
-          {% endif %} {% if field.elevation %}
-          <div class="mb-2">
-            <small class="text-muted">Elevation</small>
-            <div>{{ field.elevation }}m</div>
+          {% if field.field_area_ha or field.elevation %}
+          <div class="row mb-3">
+            {% if field.field_area_ha %}
+            <div class="col-6">
+              <div class="field-info-item">
+                <small class="text-muted fw-medium">📏 Area</small>
+                <div class="fw-medium">{{ field.field_area_ha }} ha</div>
+              </div>
+            </div>
+            {% endif %} {% if field.elevation %}
+            <div class="col-6">
+              <div class="field-info-item">
+                <small class="text-muted fw-medium">⛰️ Elevation</small>
+                <div class="fw-medium">{{ field.elevation }}m</div>
+              </div>
+            </div>
+            {% endif %}
           </div>
           {% endif %}
 
           <!-- Status Indicator -->
-          <div class="border-top pt-2 mt-2">
+          <div class="border-top border-success pt-3 mt-3">
             <div class="d-flex justify-content-between align-items-center">
-              <span class="badge {% if field.advisories.count > 0 %}bg-success{% else %}bg-warning{% endif %}">
+              <span class="badge {% if field.advisories.count > 0 %}bg-success{% else %}bg-warning{% endif %} px-3 py-2">
                 {% if field.advisories.count > 0 %} {{ field.advisories.count }} advisories {% else %} Needs advice {% endif %}
               </span>
               {% if field.advisories.first %}
-              <small class="text-muted"> Last: {{ field.advisories.first.date|date:"M d" }} </small>
+              <small class="text-muted fw-medium"> Last: {{ field.advisories.first.date|date:"M d" }} </small>
               {% endif %}
             </div>
           </div>
         </div>
-        <div class="card-footer">
+        <div class="card-footer bg-light border-0">
           <div class="d-grid gap-2">
-            <a href="{% url 'advisory:get_advice' field.id %}" class="btn btn-success btn-sm"> 💧 Get Irrigation Advice </a>
+            <a href="{% url 'advisory:get_advice' field.id %}" class="btn btn-success btn-sm fw-medium shadow-sm"> 💧 Get Irrigation Advice </a>
             <div class="btn-group btn-group-sm w-100">
-              <a href="{% url 'advisory:field_analytics' field.id %}" class="btn btn-outline-primary"> 📊 Analytics </a>
-              <a href="{% url 'advisory:advisory_history' field.id %}" class="btn btn-outline-info"> 📋 History </a>
-              <a href="{% url 'advisory:field_map' field.id %}" class="btn btn-outline-secondary"> 🗺️ Map </a>
+              <a href="{% url 'advisory:field_analytics' field.id %}" class="btn btn-outline-success"> 📊 Analytics </a>
+              <a href="{% url 'advisory:advisory_history' field.id %}" class="btn btn-outline-success"> 📋 History </a>
+              <a href="{% url 'advisory:field_map' field.id %}" class="btn btn-outline-success"> 🗺️ Map </a>
             </div>
           </div>
         </div>
@@ -76,33 +88,41 @@
   </div>
 
   <!-- Summary Section -->
-  <div class="row mt-4">
+  <div class="row mt-5">
     <div class="col-12">
-      <div class="card">
-        <div class="card-header">
-          <h6 class="mb-0">📊 Field Summary</h6>
+      <div class="card border-0 shadow-lg">
+        <div class="card-header bg-success text-white border-0">
+          <h6 class="mb-0 fw-bold">📊 Field Summary</h6>
         </div>
         <div class="card-body">
           <div class="row text-center">
             <div class="col-md-3">
-              <h4 class="text-primary">{{ fields|length }}</h4>
-              <p class="text-muted">Total Fields</p>
+              <div class="summary-metric">
+                <h4 class="text-success fw-bold">{{ fields|length }}</h4>
+                <p class="text-muted fw-medium">Total Fields</p>
+              </div>
             </div>
             <div class="col-md-3">
-              <h4 class="text-success">
-                {% for field in fields %} {% if field.advisories.count > 0 %} {% if forloop.first %}{% endif %} {% endif %} {% endfor %} {{ fields|length }}
-              </h4>
-              <p class="text-muted">Active Fields</p>
+              <div class="summary-metric">
+                <h4 class="text-success fw-bold">
+                  {% for field in fields %} {% if field.advisories.count > 0 %} {% if forloop.first %}{% endif %} {% endif %} {% endfor %} {{ fields|length }}
+                </h4>
+                <p class="text-muted fw-medium">Active Fields</p>
+              </div>
             </div>
             <div class="col-md-3">
-              <h4 class="text-info">{{ crop_summary|length }}</h4>
-              <p class="text-muted">Crop Types</p>
+              <div class="summary-metric">
+                <h4 class="text-info fw-bold">{{ crop_summary|length }}</h4>
+                <p class="text-muted fw-medium">Crop Types</p>
+              </div>
             </div>
             <div class="col-md-3">
-              <h4 class="text-warning">
-                {% for field in fields %} {% if field.advisories.count == 0 %} {% if forloop.first %}{% endif %} {% endif %} {% endfor %} 0
-              </h4>
-              <p class="text-muted">Need Advice</p>
+              <div class="summary-metric">
+                <h4 class="text-warning fw-bold">
+                  {% for field in fields %} {% if field.advisories.count == 0 %} {% if forloop.first %}{% endif %} {% endif %} {% endfor %} 0
+                </h4>
+                <p class="text-muted fw-medium">Need Advice</p>
+              </div>
             </div>
           </div>
         </div>
@@ -113,34 +133,37 @@
   {% else %}
   <!-- Empty State -->
   <div class="text-center py-5">
-    <div class="mb-4">
-      <h3 class="text-muted">No fields yet</h3>
-      <p class="text-muted">Start by creating your first field to receive irrigation advice.</p>
+    <div class="empty-state p-5 bg-light rounded shadow-sm">
+      <div class="mb-4">
+        <div class="text-success mb-3" style="font-size: 4rem">🌾</div>
+        <h3 class="text-muted fw-bold">No fields yet</h3>
+        <p class="text-muted">Start by creating your first field to receive irrigation advice.</p>
+      </div>
+      <a href="{% url 'advisory:create_field' %}" class="btn btn-success btn-lg shadow"> 🌱 Create Your First Field </a>
     </div>
-    <a href="{% url 'advisory:create_field' %}" class="btn btn-primary btn-lg"> 🌱 Create Your First Field </a>
   </div>
   {% endif %}
 
   <!-- Quick Actions -->
-  <div class="row mt-4">
+  <div class="row mt-5">
     <div class="col-12">
-      <div class="card">
-        <div class="card-header">
-          <h6 class="mb-0">Quick Actions</h6>
+      <div class="card border-0 shadow-lg">
+        <div class="card-header bg-success text-white border-0">
+          <h6 class="mb-0 fw-bold">⚡ Quick Actions</h6>
         </div>
         <div class="card-body">
           <div class="row">
             <div class="col-md-3 mb-2">
-              <a href="{% url 'advisory:create_field' %}" class="btn btn-outline-primary w-100"> ➕ Add New Field </a>
+              <a href="{% url 'advisory:create_field' %}" class="btn btn-success w-100 shadow-sm"> ➕ Add New Field </a>
             </div>
             <div class="col-md-3 mb-2">
-              <a href="{% url 'advisory:dashboard' %}" class="btn btn-outline-info w-100"> 📊 Dashboard </a>
+              <a href="{% url 'advisory:dashboard' %}" class="btn btn-outline-success w-100"> 📊 Dashboard </a>
             </div>
             <div class="col-md-3 mb-2">
               <a href="{% url 'advisory:system_analytics' %}" class="btn btn-outline-success w-100"> 📈 System Analytics </a>
             </div>
             <div class="col-md-3 mb-2">
-              <a href="{% url 'advisory:performance_comparison' %}" class="btn btn-outline-warning w-100"> 🔍 Compare Fields </a>
+              <a href="{% url 'advisory:performance_comparison' %}" class="btn btn-outline-success w-100"> 🔍 Compare Fields </a>
             </div>
           </div>
         </div>
