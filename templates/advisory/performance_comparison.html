@@ -1,120 +1,133 @@
-{% extends "base.html" %} {% block title %}Performance Comparison{% endblock %} {% block content %}
-<div class="container mt-4">
+{% extends "base.html" %} {% load static %} {% block title %}Performance Comparison{% endblock %} {% block content %}
+<div class="container mt-4 comparison-page">
   <!-- Header -->
   <div class="row mb-4">
     <div class="col-12">
-      <h2>📊 Field Performance Comparison</h2>
-      <p class="text-muted">Compare irrigation performance across all your fields</p>
+      <h2 class="text-success fw-bold">📊 Field Performance Comparison</h2>
+      <p class="text-muted">Compare irrigation performance across all your fields and identify optimization opportunities</p>
     </div>
   </div>
 
   {% if field_performances %}
   <!-- Performance Summary -->
-  <div class="row mb-4">
+  <div class="row mb-4 g-3">
     <div class="col-md-3">
-      <div class="card text-center">
+      <div class="card border-0 shadow-sm text-center h-100">
         <div class="card-body">
-          <h3 class="text-primary">{{ total_fields }}</h3>
-          <p class="card-text">Fields Compared</p>
+          <div class="metric-icon text-success mb-2">🌾</div>
+          <h3 class="text-success fw-bold">{{ total_fields }}</h3>
+          <p class="card-text fw-medium">Fields Compared</p>
+          <small class="text-muted">Active monitoring</small>
         </div>
       </div>
     </div>
     <div class="col-md-3">
-      <div class="card text-center">
+      <div class="card border-0 shadow-sm text-center h-100">
         <div class="card-body">
-          <h3 class="text-success">
-            {% for fp in field_performances %} {% if forloop.first %} {{ fp.performance.water_use_efficiency|floatformat:1 }} {% endif %} {% endfor %}
+          <div class="metric-icon text-success mb-2">🏆</div>
+          <h3 class="text-success fw-bold">
+            {% for fp in field_performances %} {% if forloop.first %} {{ fp.performance.water_use_efficiency|floatformat:1 }}% {% endif %} {% endfor %}
           </h3>
-          <p class="card-text">Best Efficiency</p>
+          <p class="card-text fw-medium">Best Efficiency</p>
+          <small class="text-muted">Top performer</small>
         </div>
       </div>
     </div>
     <div class="col-md-3">
-      <div class="card text-center">
+      <div class="card border-0 shadow-sm text-center h-100">
         <div class="card-body">
-          <h3 class="text-info">
-            {% for fp in field_performances %} {% if forloop.last %} {{ fp.performance.water_use_efficiency|floatformat:1 }} {% endif %} {% endfor %}
+          <div class="metric-icon text-warning mb-2">📉</div>
+          <h3 class="text-warning fw-bold">
+            {% for fp in field_performances %} {% if forloop.last %} {{ fp.performance.water_use_efficiency|floatformat:1 }}% {% endif %} {% endfor %}
           </h3>
-          <p class="card-text">Lowest Efficiency</p>
+          <p class="card-text fw-medium">Lowest Efficiency</p>
+          <small class="text-muted">Needs attention</small>
         </div>
       </div>
     </div>
     <div class="col-md-3">
-      <div class="card text-center">
+      <div class="card border-0 shadow-sm text-center h-100">
         <div class="card-body">
-          <h3 class="text-warning">
+          <div class="metric-icon text-success mb-2">💰</div>
+          <h3 class="text-success fw-bold">
             {% for fp in field_performances %} {% if forloop.first %} ${{ fp.performance.cost_savings|floatformat:1 }} {% endif %} {% endfor %}
           </h3>
-          <p class="card-text">Highest Savings</p>
+          <p class="card-text fw-medium">Highest Savings</p>
+          <small class="text-muted">Maximum return</small>
         </div>
       </div>
     </div>
   </div>
 
   <!-- Comparison Table -->
-  <div class="card">
-    <div class="card-header">
-      <h5 class="mb-0">📈 Performance Comparison Table</h5>
+  <div class="card border-0 shadow-lg">
+    <div class="card-header bg-success text-white border-0">
+      <h5 class="mb-0 fw-bold">📈 Performance Comparison Table</h5>
+      <small class="opacity-75">Detailed comparison of all field metrics</small>
     </div>
     <div class="card-body">
       <div class="table-responsive">
         <table class="table table-hover">
-          <thead class="table-light">
+          <thead class="table-success">
             <tr>
-              <th>Field Name</th>
-              <th>Crop</th>
-              <th>Water Efficiency</th>
-              <th>Cost Savings</th>
-              <th>Confidence</th>
-              <th>Irrigation Rate</th>
-              <th>Actions</th>
+              <th class="fw-bold">Field Name</th>
+              <th class="fw-bold">Crop</th>
+              <th class="fw-bold">Water Efficiency</th>
+              <th class="fw-bold">Cost Savings</th>
+              <th class="fw-bold">Confidence</th>
+              <th class="fw-bold">Irrigation Rate</th>
+              <th class="fw-bold">Actions</th>
             </tr>
           </thead>
           <tbody>
             {% for fp in field_performances %}
-            <tr>
+            <tr class="table-row-hover">
               <td>
-                <strong>{{ fp.field.name }}</strong>
-                <br /><small class="text-muted">{{ fp.field.soil_type|title }}</small>
+                <div class="field-info">
+                  <strong class="text-success">{{ fp.field.name }}</strong>
+                  <br /><small class="text-muted">🌍 {{ fp.field.soil_type|title }}</small>
+                </div>
               </td>
               <td>
-                <span class="badge bg-primary">{{ fp.field.crop_type|title }}</span>
+                <span class="badge bg-success">{{ fp.field.crop_type|title }}</span>
               </td>
               <td>
                 <div class="d-flex align-items-center">
-                  <div class="progress flex-grow-1 me-2" style="height: 20px">
+                  <div class="progress flex-grow-1 me-2" style="height: 24px; border-radius: 12px">
                     <div
                       class="progress-bar {% if fp.performance.water_use_efficiency > 0.8 %}bg-success{% elif fp.performance.water_use_efficiency > 0.6 %}bg-warning{% else %}bg-danger{% endif %}"
-                      style="width: {{ fp.performance.water_use_efficiency|floatformat:0 }}%"
+                      style="width: {{ fp.performance.water_use_efficiency|floatformat:0 }}%; border-radius: 12px;"
                     >
                       {{ fp.performance.water_use_efficiency|floatformat:1 }}
                     </div>
                   </div>
-                  <small class="text-muted">{{ fp.performance.water_use_efficiency|floatformat:0 }}%</small>
+                  <small class="fw-medium">{{ fp.performance.water_use_efficiency|floatformat:0 }}%</small>
                 </div>
               </td>
               <td>
-                <span class="text-success fw-bold">${{ fp.performance.cost_savings|floatformat:1 }}</span>
-                <br /><small class="text-muted">{{ fp.performance.water_saved|floatformat:1 }}mm saved</small>
+                <div class="savings-info">
+                  <span class="text-success fw-bold">${{ fp.performance.cost_savings|floatformat:1 }}</span>
+                  <br /><small class="text-muted">💧 {{ fp.performance.water_saved|floatformat:1 }}mm saved</small>
+                </div>
               </td>
               <td>
                 <span
-                  class="badge {% if fp.performance.avg_confidence > 0.7 %}bg-success{% elif fp.performance.avg_confidence > 0.4 %}bg-warning{% else %}bg-danger{% endif %}"
+                  class="badge {% if fp.performance.avg_confidence > 0.7 %}bg-success{% elif fp.performance.avg_confidence > 0.4 %}bg-warning{% else %}bg-danger{% endif %} px-3 py-2"
                 >
-                  {{ fp.performance.avg_confidence|floatformat:1 }}
+                  {{ fp.performance.avg_confidence|floatformat:1 }}%
                 </span>
               </td>
               <td>
                 <span
-                  class="badge {% if fp.performance.irrigation_frequency > 0.8 %}bg-warning{% elif fp.performance.irrigation_frequency > 0.5 %}bg-info{% else %}bg-success{% endif %}"
+                  class="badge {% if fp.performance.irrigation_frequency > 0.8 %}bg-warning{% elif fp.performance.irrigation_frequency > 0.5 %}bg-info{% else %}bg-success{% endif %} px-3 py-2"
                 >
                   {{ fp.performance.irrigation_frequency|floatformat:1 }}%
                 </span>
               </td>
               <td>
                 <div class="btn-group btn-group-sm">
-                  <a href="{% url 'advisory:field_analytics' fp.field.id %}" class="btn btn-outline-primary"> 📊 Analytics </a>
-                  <a href="{% url 'advisory:get_advice' fp.field.id %}" class="btn btn-outline-success"> 💧 Advice </a>
+                  <a href="{% url 'advisory:field_analytics' fp.field.id %}" class="btn btn-outline-success shadow-sm"> 📊 Analytics </a>
+                  <a href="{% url 'advisory:get_advice' fp.field.id %}" class="btn btn-success shadow-sm"> 💧 Advice </a>
                 </div>
               </td>
             </tr>
@@ -126,22 +139,23 @@
   </div>
 
   <!-- Performance Insights -->
-  <div class="row mt-4">
+  <div class="row mt-4 g-4">
     <div class="col-md-6">
-      <div class="card">
-        <div class="card-header">
-          <h6 class="mb-0">🏆 Top Performers</h6>
+      <div class="card border-0 shadow-lg h-100">
+        <div class="card-header bg-success text-white border-0">
+          <h6 class="mb-0 fw-bold">🏆 Top Performers</h6>
+          <small class="opacity-75">Best water efficiency leaders</small>
         </div>
         <div class="card-body">
           {% for fp in field_performances|slice:":3" %}
-          <div class="d-flex justify-content-between align-items-center mb-2">
-            <div>
-              <strong>{{ fp.field.name }}</strong>
-              <br /><small class="text-muted">{{ fp.field.crop_type|title }}</small>
+          <div class="d-flex justify-content-between align-items-center p-3 bg-light rounded mb-3">
+            <div class="performer-info">
+              <strong class="text-success">{{ fp.field.name }}</strong>
+              <br /><small class="text-muted">🌱 {{ fp.field.crop_type|title }}</small>
             </div>
             <div class="text-end">
-              <span class="badge bg-success">{{ fp.performance.water_use_efficiency|floatformat:1 }}</span>
-              <br /><small class="text-muted">${{ fp.performance.cost_savings|floatformat:1 }} saved</small>
+              <span class="badge bg-success px-3 py-2">{{ fp.performance.water_use_efficiency|floatformat:1 }}%</span>
+              <br /><small class="text-success fw-medium">${{ fp.performance.cost_savings|floatformat:1 }} saved</small>
             </div>
           </div>
           {% endfor %}
@@ -149,20 +163,21 @@
       </div>
     </div>
     <div class="col-md-6">
-      <div class="card">
-        <div class="card-header">
-          <h6 class="mb-0">📈 Improvement Opportunities</h6>
+      <div class="card border-0 shadow-lg h-100">
+        <div class="card-header bg-warning text-white border-0">
+          <h6 class="mb-0 fw-bold">📈 Improvement Opportunities</h6>
+          <small class="opacity-75">Fields with optimization potential</small>
         </div>
         <div class="card-body">
           {% for fp in field_performances|slice:"-3:" %}
-          <div class="d-flex justify-content-between align-items-center mb-2">
-            <div>
-              <strong>{{ fp.field.name }}</strong>
-              <br /><small class="text-muted">{{ fp.field.crop_type|title }}</small>
+          <div class="d-flex justify-content-between align-items-center p-3 bg-light rounded mb-3">
+            <div class="improvement-info">
+              <strong class="text-warning">{{ fp.field.name }}</strong>
+              <br /><small class="text-muted">🌱 {{ fp.field.crop_type|title }}</small>
             </div>
             <div class="text-end">
-              <span class="badge bg-warning">{{ fp.performance.water_use_efficiency|floatformat:1 }}</span>
-              <br /><small class="text-muted">Needs attention</small>
+              <span class="badge bg-warning px-3 py-2">{{ fp.performance.water_use_efficiency|floatformat:1 }}%</span>
+              <br /><small class="text-warning fw-medium">Needs attention</small>
             </div>
           </div>
           {% endfor %}
@@ -174,34 +189,38 @@
   {% else %}
   <!-- No Data State -->
   <div class="text-center py-5">
-    <div class="mb-4">
-      <h3 class="text-muted">No fields to compare</h3>
-      <p class="text-muted">Add multiple fields to see performance comparisons.</p>
+    <div class="card border-0 shadow-lg">
+      <div class="card-body p-5">
+        <div class="empty-state-icon text-success mb-4" style="font-size: 4rem">🌾</div>
+        <h3 class="text-success fw-bold mb-3">No fields to compare</h3>
+        <p class="text-muted mb-4">Add multiple fields to see performance comparisons and unlock powerful insights about your irrigation efficiency.</p>
+        <a href="{% url 'advisory:create_field' %}" class="btn btn-success btn-lg shadow"> 🌱 Add Your First Field </a>
+      </div>
     </div>
-    <a href="{% url 'advisory:create_field' %}" class="btn btn-primary btn-lg"> 🌱 Add Your First Field </a>
   </div>
   {% endif %}
 
   <!-- Quick Actions -->
   <div class="row mt-4">
     <div class="col-12">
-      <div class="card">
-        <div class="card-header">
-          <h6 class="mb-0">Quick Actions</h6>
+      <div class="card border-0 shadow-lg">
+        <div class="card-header bg-success text-white border-0">
+          <h6 class="mb-0 fw-bold">⚡ Quick Actions</h6>
+          <small class="opacity-75">Navigate to other sections</small>
         </div>
         <div class="card-body">
-          <div class="row">
-            <div class="col-md-3 mb-2">
-              <a href="{% url 'advisory:system_analytics' %}" class="btn btn-outline-primary w-100"> 📊 System Analytics </a>
+          <div class="row g-3">
+            <div class="col-md-3">
+              <a href="{% url 'advisory:system_analytics' %}" class="btn btn-outline-success w-100 shadow-sm"> 📊 System Analytics </a>
             </div>
-            <div class="col-md-3 mb-2">
-              <a href="{% url 'advisory:dashboard' %}" class="btn btn-outline-info w-100"> 🏠 Main Dashboard </a>
+            <div class="col-md-3">
+              <a href="{% url 'advisory:dashboard' %}" class="btn btn-outline-success w-100 shadow-sm"> 🏠 Main Dashboard </a>
             </div>
-            <div class="col-md-3 mb-2">
-              <a href="{% url 'advisory:field_list' %}" class="btn btn-outline-secondary w-100"> 🌾 View Fields </a>
+            <div class="col-md-3">
+              <a href="{% url 'advisory:field_list' %}" class="btn btn-outline-success w-100 shadow-sm"> 🌾 View Fields </a>
             </div>
-            <div class="col-md-3 mb-2">
-              <a href="{% url 'advisory:create_field' %}" class="btn btn-outline-success w-100"> ➕ Add Field </a>
+            <div class="col-md-3">
+              <a href="{% url 'advisory:create_field' %}" class="btn btn-success w-100 shadow"> ➕ Add Field </a>
             </div>
           </div>
         </div>
