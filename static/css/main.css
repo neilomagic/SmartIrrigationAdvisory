@@ -604,6 +604,108 @@
     border-width: 2px !important;
 }
 
+/* Field Map Page Styling */
+.field-map-page {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    min-height: 100vh;
+    padding-bottom: 2rem;
+}
+
+.field-map-page .card {
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.field-map-page .card-header {
+    border-radius: 12px 12px 0 0 !important;
+}
+
+/* Map controls styling */
+.map-controls .btn-group .btn-outline-light:checked,
+.map-controls .btn-group .btn-outline-light.active {
+    background-color: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.5);
+    color: white;
+}
+
+.map-controls .btn-group .btn-outline-light:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.3);
+    color: white;
+}
+
+/* Weather metrics styling */
+.weather-metric {
+    padding: 0.5rem;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+}
+
+.weather-metric:hover {
+    background-color: rgba(25, 135, 84, 0.05);
+    transform: scale(1.02);
+}
+
+/* Advisory metrics styling */
+.advisory-metric {
+    padding: 0.5rem;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+}
+
+.advisory-metric:hover {
+    background-color: rgba(25, 135, 84, 0.05);
+}
+
+/* Field popup styling (for Leaflet popups) */
+.field-popup {
+    min-width: 200px;
+}
+
+.field-popup .popup-details {
+    line-height: 1.4;
+    margin: 0.5rem 0;
+}
+
+/* Custom marker styling */
+.field-marker {
+    filter: drop-shadow(0 3px 6px rgba(25, 135, 84, 0.4));
+}
+
+/* Enhanced map container */
+.field-map-page #map {
+    border-radius: 0;
+    border: none;
+}
+
+/* Field info styling in advisory sidebar */
+.field-info {
+    background: linear-gradient(135deg, var(--success-bg) 0%, rgba(25, 135, 84, 0.1) 100%);
+    padding: 1rem;
+    border-radius: 8px;
+}
+
+/* Responsive adjustments for field map */
+@media (max-width: 768px) {
+    .field-map-page .map-controls {
+        margin-top: 0.5rem;
+        width: 100%;
+    }
+    
+    .field-map-page .map-controls .btn-group {
+        width: 100%;
+    }
+    
+    .field-map-page .map-controls .btn {
+        flex: 1;
+        font-size: 0.8rem;
+    }
+    
+    .field-map-page #map {
+        height: 400px !important;
+    }
+}
+
 /* Animation for loading states */
 .loading {
     opacity: 0.6;

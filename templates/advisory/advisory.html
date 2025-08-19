@@ -1,17 +1,63 @@
-<div class="card">
-  <div class="card-header bg-info text-white">Irrigation Advisory</div>
+<div class="card border-0 shadow-lg">
+  <div class="card-header bg-success text-white border-0">
+    <h6 class="mb-0 fw-bold">💧 Irrigation Advisory</h6>
+  </div>
   <div class="card-body">
-    <h5 class="card-title">{{ field.crop_type|title }} Field</h5>
-    <p class="card-text">
-      <strong>Planted:</strong> {{ field.planting_date|date:"Y-m-d" }}<br />
-      <strong>Soil Type:</strong> {{ field.soil_type|title }}
-    </p>
-    <hr />
-    <p><strong>Stage:</strong> {{ stage }}</p>
-    <p><strong>ET₀:</strong> {{ eto }} mm/day</p>
-    <p><strong>Rainfall:</strong> {{ rain }} mm/week</p>
-    <p><strong>Water Need:</strong> {{ weekly_need }} mm</p>
-    <p><strong>Deficit:</strong> {{ deficit }} mm</p>
-    <div class="alert alert-success">{{ message }}</div>
+    <h6 class="card-title text-success fw-bold">🌱 {{ field.crop_type|title }} Field</h6>
+    <div class="field-info mb-3">
+      <div class="row">
+        <div class="col-6">
+          <small class="text-muted fw-medium">📅 Planted</small>
+          <div class="fw-medium">{{ field.planting_date|date:"M d, Y" }}</div>
+        </div>
+        <div class="col-6">
+          <small class="text-muted fw-medium">🌍 Soil Type</small>
+          <div class="fw-medium">{{ field.soil_type|title }}</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="border-top border-success pt-3 mt-3">
+      {% if stage %}
+      <div class="advisory-metric mb-2">
+        <div class="d-flex justify-content-between">
+          <span class="fw-medium">Growth Stage:</span>
+          <span class="text-success">{{ stage }}</span>
+        </div>
+      </div>
+      {% endif %} {% if eto %}
+      <div class="advisory-metric mb-2">
+        <div class="d-flex justify-content-between">
+          <span class="fw-medium">ET₀:</span>
+          <span class="text-success">{{ eto }} mm/day</span>
+        </div>
+      </div>
+      {% endif %} {% if rain %}
+      <div class="advisory-metric mb-2">
+        <div class="d-flex justify-content-between">
+          <span class="fw-medium">Rainfall:</span>
+          <span class="text-info">{{ rain }} mm/week</span>
+        </div>
+      </div>
+      {% endif %} {% if weekly_need %}
+      <div class="advisory-metric mb-2">
+        <div class="d-flex justify-content-between">
+          <span class="fw-medium">Water Need:</span>
+          <span class="text-primary">{{ weekly_need }} mm</span>
+        </div>
+      </div>
+      {% endif %} {% if deficit %}
+      <div class="advisory-metric mb-3">
+        <div class="d-flex justify-content-between">
+          <span class="fw-medium">Deficit:</span>
+          <span class="text-warning">{{ deficit }} mm</span>
+        </div>
+      </div>
+      {% endif %}
+    </div>
+
+    {% if message %}
+    <div class="alert alert-success border-0 shadow-sm">{{ message }}</div>
+    {% endif %}
   </div>
 </div>

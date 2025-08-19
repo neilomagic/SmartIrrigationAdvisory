@@ -1,15 +1,120 @@
-{% extends "base.html" %} {% load static %} {% block content %}
-<div class="row">
-  <div class="col-md-8">
-    <div class="card">
-      <div class="card-header bg-primary text-white">Field Map - {{ field.name }}</div>
-      <div class="card-body p-0">
-        <!-- Pass latitude and longitude as data attributes -->
-        <div id="map" style="height: 500px" data-lat="{{ field.latitude }}" data-lng="{{ field.longitude }}"></div>
+{% extends "base.html" %} {% load static %} {% block title %}{{ field.name }} - Field Map{% endblock %} {% block breadcrumb %}
+<li class="breadcrumb-item"><a href="{% url 'advisory:field_list' %}">My Fields</a></li>
+<li class="breadcrumb-item active">{{ field.name }} - Map</li>
+{% endblock %} {% block content %}
+<div class="container mt-4 field-map-page">
+  <!-- Header Section -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <h2 class="text-success fw-bold">🗺️ {{ field.name }} Field Map</h2>
+          <p class="text-muted">View your field location and current advisory information</p>
+        </div>
+        <div class="text-end">
+          <span class="badge bg-success">{{ field.crop_type|title }}</span>
+          <br />
+          <small class="text-muted">{{ field.latitude|floatformat:4 }}, {{ field.longitude|floatformat:4 }}</small>
+        </div>
       </div>
     </div>
   </div>
-  <div class="col-md-4">{% include "advisory/advisory.html" %}</div>
+
+  <div class="row g-4">
+    <!-- Enhanced Map Panel -->
+    <div class="col-lg-8">
+      <div class="card border-0 shadow-lg">
+        <div class="card-header bg-success text-white border-0">
+          <div class="d-flex justify-content-between align-items-center">
+            <h5 class="mb-0 fw-bold">📍 Field Location</h5>
+            <div class="map-controls">
+              <small class="opacity-75">Map Type:</small>
+              <div class="btn-group btn-group-sm ms-2" role="group">
+                <input type="radio" class="btn-check" name="mapType" id="satellite" value="satellite" checked />
+                <label class="btn btn-outline-light btn-sm" for="satellite">Satellite</label>
+
+                <input type="radio" class="btn-check" name="mapType" id="streets" value="streets" />
+                <label class="btn btn-outline-light btn-sm" for="streets">Streets</label>
+
+                <input type="radio" class="btn-check" name="mapType" id="terrain" value="terrain" />
+                <label class="btn btn-outline-light btn-sm" for="terrain">Terrain</label>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card-body p-0 position-relative">
+          <!-- Pass latitude and longitude as data attributes -->
+          <div id="map" style="height: 550px; width: 100%" data-lat="{{ field.latitude }}" data-lng="{{ field.longitude }}"></div>
+          <div class="position-absolute bottom-0 start-0 end-0 bg-light bg-opacity-90 border-top border-success p-2">
+            <small class="text-success fw-medium">
+              📍 {{ field.name }} - {{ field.crop_type|title }} | 📅 Planted: {{ field.planting_date|date:"M d, Y" }} {% if field.field_area_ha %} | 📏 {{
+              field.field_area_ha }} ha{% endif %}
+            </small>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Enhanced Sidebar -->
+    <div class="col-lg-4">
+      {% include "advisory/advisory.html" %}
+
+      <!-- Field Actions Card -->
+      <div class="card border-0 shadow-lg mt-3">
+        <div class="card-header bg-success text-white border-0">
+          <h6 class="mb-0 fw-bold">⚡ Field Actions</h6>
+        </div>
+        <div class="card-body">
+          <div class="d-grid gap-2">
+            <a href="{% url 'advisory:get_advice' field.id %}" class="btn btn-success"> 💧 Get Irrigation Advice </a>
+            <a href="{% url 'advisory:field_analytics' field.id %}" class="btn btn-outline-success"> 📊 View Analytics </a>
+            <a href="{% url 'advisory:advisory_history' field.id %}" class="btn btn-outline-success"> 📋 Advisory History </a>
+            <a href="{% url 'advisory:field_list' %}" class="btn btn-outline-secondary"> ← Back to Fields </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Weather Information Card -->
+      {% if weather_data %}
+      <div class="card border-0 shadow-lg mt-3">
+        <div class="card-header bg-success text-white border-0">
+          <h6 class="mb-0 fw-bold">🌤️ Current Weather</h6>
+        </div>
+        <div class="card-body">
+          <div class="row text-center">
+            <div class="col-6">
+              <div class="weather-metric">
+                <h6 class="text-success">{{ weather_data.daily_eto|floatformat:1 }}</h6>
+                <small class="text-muted">ET₀ (mm/day)</small>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="weather-metric">
+                <h6 class="text-info">{{ weather_data.weekly_rainfall|floatformat:1 }}</h6>
+                <small class="text-muted">Rainfall (mm)</small>
+              </div>
+            </div>
+          </div>
+          <hr />
+          <div class="row text-center">
+            <div class="col-6">
+              <div class="weather-metric">
+                <h6 class="text-success">{{ weather_data.soil_moisture_ndmi|floatformat:2 }}</h6>
+                <small class="text-muted">Soil Moisture</small>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="weather-metric">
+                <span class="badge bg-success">{{ weather_data.data_source|upper }}</span>
+                <small class="text-muted d-block">Data Source</small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+    </div>
+  </div>
 </div>
 {% endblock %} {% block scripts %}
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -17,16 +122,111 @@
 <script src="{% static 'js/advisory.js' %}"></script>
 
 <script>
-  // Pass latitude and longitude to map.js
+  // Enhanced field map functionality
   const mapElement = document.getElementById("map");
   const lat = parseFloat(mapElement.dataset.lat);
   const lon = parseFloat(mapElement.dataset.lng);
+  let currentTileLayer;
 
   // Initialize the map with the coordinates
+  const map = L.map("map").setView([lat, lon], 15);
 
-  const map = L.map("map").setView([lat, lon], 13);
-  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png").addTo(map);
+  // Define basemap options
+  const basemaps = {
+    satellite: {
+      url: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+      options: {
+        attribution: "© Esri | © World Imagery",
+        maxZoom: 19
+      }
+    },
+    streets: {
+      url: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+      options: {
+        attribution: "© OpenStreetMap contributors",
+        maxZoom: 19
+      }
+    },
+    terrain: {
+      url: "https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png",
+      options: {
+        attribution: "© OpenTopoMap (CC-BY-SA)",
+        maxZoom: 17
+      }
+    }
+  };
 
-  const marker = L.marker([lat, lon]).addTo(map).bindPopup(`{{ field.name }}`).openPopup();
+  // Set basemap function
+  function setBasemap(basemapType) {
+    if (currentTileLayer) {
+      map.removeLayer(currentTileLayer);
+    }
+    const basemap = basemaps[basemapType];
+    currentTileLayer = L.tileLayer(basemap.url, basemap.options).addTo(map);
+  }
+
+  // Initialize with satellite basemap
+  setBasemap('satellite');
+
+  // Handle basemap selection
+  document.querySelectorAll('input[name="mapType"]').forEach(radio => {
+    radio.addEventListener('change', function() {
+      if (this.checked) {
+        setBasemap(this.value);
+      }
+    });
+  });
+
+  // Enhanced marker with field information
+  const customIcon = L.divIcon({
+    className: 'field-marker',
+    html: '<div style="background-color: #198754; width: 24px; height: 24px; border-radius: 50%; border: 4px solid white; box-shadow: 0 3px 8px rgba(0,0,0,0.4);"></div>',
+    iconSize: [24, 24],
+    iconAnchor: [12, 12]
+  });
+
+  const marker = L.marker([lat, lon], {icon: customIcon}).addTo(map);
+
+  // Enhanced popup with field details
+  const popupContent = `
+    <div class="field-popup">
+      <h6 class="text-success fw-bold mb-2">🌾 {{ field.name }}</h6>
+      <div class="popup-details">
+        <small><strong>Crop:</strong> {{ field.crop_type|title }}</small><br>
+        <small><strong>Planted:</strong> {{ field.planting_date|date:"M d, Y" }}</small><br>
+        {% if field.soil_type %}<small><strong>Soil:</strong> {{ field.soil_type|title }}</small><br>{% endif %}
+        {% if field.field_area_ha %}<small><strong>Area:</strong> {{ field.field_area_ha }} ha</small><br>{% endif %}
+        <small><strong>Coordinates:</strong> ${lat.toFixed(4)}, ${lon.toFixed(4)}</small>
+      </div>
+      <div class="mt-2">
+        <a href="{% url 'advisory:get_advice' field.id %}" class="btn btn-success btn-sm">💧 Get Advice</a>
+      </div>
+    </div>
+  `;
+
+  marker.bindPopup(popupContent).openPopup();
+
+  // Add a circle to show approximate field boundary (if area is available)
+  {% if field.field_area_ha %}
+  const fieldRadius = Math.sqrt({{ field.field_area_ha }} * 10000 / Math.PI); // Convert ha to radius in meters
+  const fieldCircle = L.circle([lat, lon], {
+    color: '#198754',
+    fillColor: '#198754',
+    fillOpacity: 0.1,
+    radius: fieldRadius,
+    weight: 2
+  }).addTo(map);
+
+  // Adjust map view to include the field boundary
+  map.fitBounds(fieldCircle.getBounds(), {padding: [20, 20]});
+  {% endif %}
+
+  // Add scale control
+  L.control.scale({position: 'bottomleft'}).addTo(map);
+
+  // Add fullscreen-like zoom control
+  map.on('click', function() {
+    // Optional: Add click interaction
+  });
 </script>
 {% endblock %}
