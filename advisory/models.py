@@ -109,3 +109,73 @@ class IrrigationAdvisory(models.Model):
         recommendation_text = str(self.recommendation)[
             :25] if self.recommendation else 'No recommendation'
         return f"{self.field.name} - {self.date} - {recommendation_text}"
+
+
+class SystemConfig(models.Model):
+    """System configuration for irrigation advisory"""
+
+    class Meta:
+        verbose_name = 'System Configuration'
+        verbose_name_plural = 'System Configuration'
+
+    # Weather API Configuration
+    weather_api_key = models.CharField(
+        max_length=200, blank=True,
+        help_text="API key for weather data service"
+    )
+    weather_api_provider = models.CharField(
+        max_length=50, default='openweathermap',
+        choices=[
+            ('openweathermap', 'OpenWeatherMap'),
+            ('weatherapi', 'WeatherAPI'),
+            ('custom', 'Custom API')
+        ]
+    )
+
+    # Google Earth Engine Configuration
+    gee_service_account_key = models.TextField(
+        blank=True,
+        help_text="JSON service account key for Google Earth Engine"
+    )
+    gee_project_id = models.CharField(
+        max_length=100, blank=True,
+        help_text="Google Cloud Project ID for Earth Engine"
+    )
+
+    # System Settings
+    default_crop_coefficient = models.FloatField(
+        default=1.0,
+        help_text="Default crop coefficient when specific data unavailable"
+    )
+    confidence_threshold = models.FloatField(
+        default=0.7,
+        help_text="Minimum confidence score for high-quality recommendations"
+    )
+    max_field_area = models.FloatField(
+        default=1000.0,
+        help_text="Maximum allowed field area in hectares"
+    )
+
+    # Email Notifications
+    enable_email_notifications = models.BooleanField(
+        default=False,
+        help_text="Enable email notifications for irrigation alerts"
+    )
+    notification_email = models.EmailField(
+        blank=True,
+        help_text="Email address for system notifications"
+    )
+
+    # Data Retention
+    advisory_retention_days = models.IntegerField(
+        default=365,
+        help_text="Number of days to retain advisory records"
+    )
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        if self.updated_at:
+            return f"System Configuration (Updated: {self.updated_at.strftime('%Y-%m-%d %H:%M')})"
+        return "System Configuration"
