@@ -1,0 +1,216 @@
+{% extends "admin/base_site.html" %} {% load static %} {% block title %}Analytics Dashboard - {{ site_title }}{% endblock %} {% block extrahead %}
+<style>
+  .analytics-dashboard {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  }
+
+  .stats-card {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    color: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 4px 12px rgba(40, 167, 69, 0.2);
+  }
+
+  .stats-card h3 {
+    font-size: 2.5rem;
+    font-weight: bold;
+    margin: 0;
+  }
+
+  .stats-card p {
+    margin: 0.5rem 0 0 0;
+    opacity: 0.9;
+  }
+
+  .chart-container {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  .activity-list {
+    max-height: 300px;
+    overflow-y: auto;
+  }
+
+  .activity-item {
+    padding: 0.75rem;
+    border-left: 4px solid #28a745;
+    margin-bottom: 0.5rem;
+    background: #f8f9fa;
+    border-radius: 0 8px 8px 0;
+  }
+
+  .crop-distribution {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  .crop-item {
+    background: #e8f5e9;
+    color: #2e7d32;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    font-weight: bold;
+  }
+
+  .progress-bar {
+    background: #28a745;
+    height: 8px;
+    border-radius: 4px;
+    transition: width 0.3s ease;
+  }
+
+  .progress-bg {
+    background: #e9ecef;
+    height: 8px;
+    border-radius: 4px;
+    overflow: hidden;
+  }
+</style>
+{% endblock %} {% block content %}
+<div class="analytics-dashboard">
+  <h1>📊 Analytics Dashboard</h1>
+  <p class="description">Comprehensive overview of your irrigation advisory system</p>
+
+  <!-- Quick Stats -->
+  <div class="row" style="display: flex; margin: 0 -15px">
+    <div class="col-md-3" style="padding: 0 15px">
+      <div class="stats-card">
+        <h3>{{ total_fields }}</h3>
+        <p>🌾 Total Fields</p>
+      </div>
+    </div>
+    <div class="col-md-3" style="padding: 0 15px">
+      <div class="stats-card">
+        <h3>{{ total_advisories }}</h3>
+        <p>💧 Total Advisories</p>
+      </div>
+    </div>
+    <div class="col-md-3" style="padding: 0 15px">
+      <div class="stats-card">
+        <h3>{{ irrigation_percentage|floatformat:0 }}%</h3>
+        <p>⚡ Irrigation Rate</p>
+      </div>
+    </div>
+    <div class="col-md-3" style="padding: 0 15px">
+      <div class="stats-card">
+        <h3>{{ confidence_percentage|floatformat:0 }}%</h3>
+        <p>🎯 High Confidence</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="row" style="display: flex; margin: 0 -15px">
+    <!-- Crop Distribution -->
+    <div class="col-md-6" style="padding: 0 15px">
+      <div class="chart-container">
+        <h3>🌱 Crop Distribution</h3>
+        <div class="crop-distribution">
+          {% for crop in crop_distribution %}
+          <div class="crop-item">{{ crop.crop_type|title }}: {{ crop.count }}</div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Monthly Trend -->
+    <div class="col-md-6" style="padding: 0 15px">
+      <div class="chart-container">
+        <h3>📈 Monthly Advisory Trend</h3>
+        {% for month_data in monthly_data %}
+        <div style="margin-bottom: 1rem">
+          <div style="display: flex; justify-content: between; margin-bottom: 0.25rem">
+            <span>{{ month_data.month }}</span>
+            <strong>{{ month_data.count }}</strong>
+          </div>
+          <div class="progress-bg">
+            <div class="progress-bar" style="width: {{ month_data.count|floatformat:0 }}%;"></div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <div class="row" style="display: flex; margin: 0 -15px">
+    <!-- Recent Fields -->
+    <div class="col-md-6" style="padding: 0 15px">
+      <div class="chart-container">
+        <h3>🆕 Recent Fields</h3>
+        <div class="activity-list">
+          {% for field in recent_fields %}
+          <div class="activity-item">
+            <strong>{{ field.name }}</strong> - {{ field.crop_type|title }} <br /><small>Created: {{ field.created_at|date:"M d, Y" }}</small>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Advisories -->
+    <div class="col-md-6" style="padding: 0 15px">
+      <div class="chart-container">
+        <h3>💧 Recent Advisories</h3>
+        <div class="activity-list">
+          {% for advisory in recent_advisories %}
+          <div class="activity-item">
+            <strong>{{ advisory.field.name }}</strong>
+            {% if advisory.irrigation_recommended %}
+            <span style="color: #dc3545">💧 Irrigation Needed</span>
+            {% else %}
+            <span style="color: #28a745">✅ No Irrigation</span>
+            {% endif %}
+            <br /><small>{{ advisory.date|date:"M d, Y" }} - Confidence: {{ advisory.confidence_score|floatformat:2 }}</small>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Actions -->
+  <div class="row" style="display: flex; margin: 0 -15px">
+    <div class="col-12" style="padding: 0 15px">
+      <div class="chart-container">
+        <h3>⚡ Quick Actions</h3>
+        <div style="display: flex; gap: 1rem; flex-wrap: wrap">
+          <a
+            href="{% url 'admin:advisory_farmfield_changelist' %}"
+            class="button default"
+            style="background: #28a745; color: white; padding: 0.75rem 1.5rem; border-radius: 8px; text-decoration: none"
+          >
+            🌾 Manage Fields
+          </a>
+          <a
+            href="{% url 'admin:advisory_irrigationadvisory_changelist' %}"
+            class="button default"
+            style="background: #17a2b8; color: white; padding: 0.75rem 1.5rem; border-radius: 8px; text-decoration: none"
+          >
+            💧 View Advisories
+          </a>
+          <a
+            href="{% url 'admin:system_health' %}"
+            class="button default"
+            style="background: #ffc107; color: #212529; padding: 0.75rem 1.5rem; border-radius: 8px; text-decoration: none"
+          >
+            🏥 System Health
+          </a>
+          <a
+            href="{% url 'admin:advisory_systemconfig_changelist' %}"
+            class="button default"
+            style="background: #6f42c1; color: white; padding: 0.75rem 1.5rem; border-radius: 8px; text-decoration: none"
+          >
+            ⚙️ Configuration
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

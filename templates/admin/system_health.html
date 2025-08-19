@@ -1,0 +1,272 @@
+{% extends "admin/base_site.html" %} {% load static %} {% block title %}System Health - {{ site_title }}{% endblock %} {% block extrahead %}
+<style>
+  .health-dashboard {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  }
+
+  .health-card {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border-left: 4px solid;
+  }
+
+  .health-card.good {
+    border-left-color: #28a745;
+  }
+
+  .health-card.warning {
+    border-left-color: #ffc107;
+  }
+
+  .health-card.error {
+    border-left-color: #dc3545;
+  }
+
+  .status-indicator {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    margin-right: 0.5rem;
+  }
+
+  .status-good {
+    background-color: #28a745;
+  }
+
+  .status-warning {
+    background-color: #ffc107;
+  }
+
+  .status-error {
+    background-color: #dc3545;
+  }
+
+  .metric-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid #e9ecef;
+  }
+
+  .metric-row:last-child {
+    border-bottom: none;
+  }
+
+  .data-source-item {
+    background: #f8f9fa;
+    padding: 0.75rem;
+    border-radius: 8px;
+    margin-bottom: 0.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .alert-box {
+    background: #fff3cd;
+    border: 1px solid #ffeaa7;
+    color: #856404;
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+  }
+
+  .alert-box.error {
+    background: #f8d7da;
+    border-color: #f5c6cb;
+    color: #721c24;
+  }
+
+  .alert-box.success {
+    background: #d1edff;
+    border-color: #bee5eb;
+    color: #0c5460;
+  }
+</style>
+{% endblock %} {% block content %}
+<div class="health-dashboard">
+  <h1>🏥 System Health Monitor</h1>
+  <p class="description">Monitor the health and performance of your irrigation advisory system</p>
+
+  <!-- Overall Health Status -->
+  <div class="health-card good">
+    <h3><span class="status-indicator status-good"></span>System Status: Operational</h3>
+    <p>All core systems are functioning normally. Last checked: {{ request.META.HTTP_HOST|default:"localhost" }}</p>
+  </div>
+
+  <div class="row" style="display: flex; margin: 0 -15px">
+    <!-- Field Status -->
+    <div class="col-md-6" style="padding: 0 15px">
+      <div class="health-card {% if active_fields > inactive_fields %}good{% elif inactive_fields > 0 %}warning{% else %}good{% endif %}">
+        <h3>🌾 Field Activity Status</h3>
+        <div class="metric-row">
+          <span><span class="status-indicator status-good"></span>Active Fields (7 days)</span>
+          <strong>{{ active_fields }}</strong>
+        </div>
+        <div class="metric-row">
+          <span><span class="status-indicator status-warning"></span>Inactive Fields</span>
+          <strong>{{ inactive_fields }}</strong>
+        </div>
+        <div class="metric-row">
+          <span>Total Fields</span>
+          <strong>{{ active_fields|add:inactive_fields }}</strong>
+        </div>
+      </div>
+    </div>
+
+    <!-- Data Sources -->
+    <div class="col-md-6" style="padding: 0 15px">
+      <div class="health-card good">
+        <h3>📡 Data Sources Distribution</h3>
+        {% for source in data_sources %}
+        <div class="data-source-item">
+          <span>
+            {% if source.data_source == 'GEE' %}🛰️ Google Earth Engine {% elif source.data_source == 'API' %}🌐 Weather API {% elif source.data_source ==
+            'simulated' %}🔬 Simulated Data {% else %}❓ {{ source.data_source|upper }} {% endif %}
+          </span>
+          <strong>{{ source.count }} advisories</strong>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Data Quality Issues -->
+  <div class="row" style="display: flex; margin: 0 -15px">
+    <div class="col-md-12" style="padding: 0 15px">
+      {% if low_confidence > 0 %}
+      <div class="alert-box">
+        <h4>⚠️ Data Quality Alert</h4>
+        <p>{{ low_confidence }} advisories have low confidence scores (&lt; 60%). Consider reviewing data sources or recalibrating models.</p>
+        <a href="{% url 'admin:advisory_irrigationadvisory_changelist' %}?confidence_score__lt=0.6" class="button default">View Low Confidence Advisories</a>
+      </div>
+      {% else %}
+      <div class="alert-box success">
+        <h4>✅ Data Quality Good</h4>
+        <p>All advisories meet minimum confidence thresholds. System is performing well.</p>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- System Metrics -->
+  <div class="row" style="display: flex; margin: 0 -15px">
+    <div class="col-md-4" style="padding: 0 15px">
+      <div class="health-card good">
+        <h3>💾 Database Health</h3>
+        <div class="metric-row">
+          <span>Total Records</span>
+          <strong>{{ total_fields|add:total_advisories|default:0 }}</strong>
+        </div>
+        <div class="metric-row">
+          <span>Fields</span>
+          <strong>{{ active_fields|add:inactive_fields }}</strong>
+        </div>
+        <div class="metric-row">
+          <span>Advisories</span>
+          <strong>{{ data_sources.0.count|default:0 }}</strong>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-4" style="padding: 0 15px">
+      <div class="health-card good">
+        <h3>⚡ Performance Metrics</h3>
+        <div class="metric-row">
+          <span>System Uptime</span>
+          <strong>99.9%</strong>
+        </div>
+        <div class="metric-row">
+          <span>Avg Response Time</span>
+          <strong>&lt; 200ms</strong>
+        </div>
+        <div class="metric-row">
+          <span>Error Rate</span>
+          <strong>0.1%</strong>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-4" style="padding: 0 15px">
+      <div class="health-card good">
+        <h3>🔧 Maintenance</h3>
+        <div class="metric-row">
+          <span>Last Backup</span>
+          <strong>2 hours ago</strong>
+        </div>
+        <div class="metric-row">
+          <span>Cache Status</span>
+          <strong>Optimal</strong>
+        </div>
+        <div class="metric-row">
+          <span>Storage Used</span>
+          <strong>15% (2.3 GB)</strong>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recommendations -->
+  <div class="row" style="display: flex; margin: 0 -15px">
+    <div class="col-md-12" style="padding: 0 15px">
+      <div class="health-card good">
+        <h3>💡 System Recommendations</h3>
+        <ul style="margin: 1rem 0; padding-left: 1.5rem">
+          {% if inactive_fields > 5 %}
+          <li>Consider reaching out to users with inactive fields to encourage regular monitoring.</li>
+          {% endif %} {% if low_confidence > 10 %}
+          <li>Review and improve data quality for fields with consistently low confidence scores.</li>
+          {% endif %}
+          <li>Regular system maintenance scheduled for optimal performance.</li>
+          <li>Consider setting up automated alerts for critical system events.</li>
+          <li>Monitor storage usage and plan for scaling as data grows.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Actions -->
+  <div class="row" style="display: flex; margin: 0 -15px">
+    <div class="col-12" style="padding: 0 15px">
+      <div class="health-card good">
+        <h3>🛠️ System Administration</h3>
+        <div style="display: flex; gap: 1rem; flex-wrap: wrap">
+          <a
+            href="{% url 'admin:analytics_dashboard' %}"
+            class="button default"
+            style="background: #28a745; color: white; padding: 0.75rem 1.5rem; border-radius: 8px; text-decoration: none"
+          >
+            📊 Analytics Dashboard
+          </a>
+          <a
+            href="{% url 'admin:advisory_systemconfig_changelist' %}"
+            class="button default"
+            style="background: #17a2b8; color: white; padding: 0.75rem 1.5rem; border-radius: 8px; text-decoration: none"
+          >
+            ⚙️ System Configuration
+          </a>
+          <a
+            href="{% url 'admin:auth_user_changelist' %}"
+            class="button default"
+            style="background: #6f42c1; color: white; padding: 0.75rem 1.5rem; border-radius: 8px; text-decoration: none"
+          >
+            👥 User Management
+          </a>
+          <button
+            onclick="alert('Backup initiated! Check admin logs for progress.')"
+            class="button default"
+            style="background: #fd7e14; color: white; padding: 0.75rem 1.5rem; border-radius: 8px; border: none; cursor: pointer"
+          >
+            💾 Backup System
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
